@@ -1,0 +1,127 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@drawable/background"
+    tools:context="com.gmoonxs.www.orangehome.SceneActivity">
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:background="#FFFFFF"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/title_height">
+            <TextView
+                android:id="@+id/scence_activity_title"
+                android:textColor="#000000"
+                android:layout_centerInParent="true"
+                android:textStyle="bold"
+                android:textSize="@dimen/title_txt_size"
+                android:text="@string/scence_activity_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="2"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ListView
+                android:paddingTop="30dp"
+                android:paddingRight="100dp"
+                android:paddingLeft="100dp"
+                android:id="@+id/scene_activity_operation_list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                >
+
+            </ListView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/scene_activity_edit_scene_linearlayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal"
+            android:layout_weight="5">
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:layout_weight="2">
+                <ImageView
+                    android:id="@+id/scene_activity_enter_scene_button"
+                    android:layout_width="200dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/scene_activity_enter_scene"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="3"/>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:layout_weight="2">
+                <ImageView
+                    android:id="@+id/scene_activity_delete_scene_button"
+                    android:layout_width="200dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/scene_activity_delete_scene"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="10dp"
+            android:layout_weight="5">
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:layout_weight="2">
+                <ImageView
+                    android:id="@+id/scene_activity_confirm_button"
+                    android:layout_width="200dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/confirm_button"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="3"/>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:layout_weight="2">
+                <ImageView
+                    android:id="@+id/scene_activity_cancel_button"
+                    android:layout_width="200dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/cancel_button"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

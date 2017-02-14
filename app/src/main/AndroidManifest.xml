@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.gmoonxs.www.orangehome">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RESTART_PACKAGES"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <application
+        android:name=".OrangeHomeApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".IndexActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".AddDeviceActivity"
+            android:label="@string/title_activity_add_device"
+            android:screenOrientation="landscape">
+        </activity>
+
+        <service
+            android:name="com.cg.hsb.HsbService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.cg.hsb.service.HSB_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".DeviceTimerActivity"
+            android:label="@string/title_activity_device_timer"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+        <activity
+            android:name=".AirCRemoteCActivity"
+            android:label="@string/title_activity_air_cremote_c"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+        <!--
+        <activity
+            android:name=".ui.activity.IndexActivity"
+            android:label="@string/title_activity_air_cremote_c" >
+        </activity>-
+        -->
+        <activity
+            android:name=".CC9201RemoteCActivity"
+            android:label="@string/title_activity_cc9201_remote_c"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+        <activity
+            android:name=".ChannelListActivity"
+            android:label="@string/title_activity_channel_list"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+        <activity
+            android:name=".EditDeviceActivity"
+            android:label="@string/title_activity_edit_device"
+            android:screenOrientation="landscape">
+        </activity>
+        <activity
+            android:name=".TestActivity"
+            android:label="@string/title_activity_test">
+        </activity>
+        <activity
+            android:name=".SceneActivity"
+            android:label="@string/title_activity_scence"
+            android:screenOrientation="landscape">
+        </activity>
+        <activity
+            android:name=".SceneOperationActivity"
+            android:label="@string/title_activity_scene_operation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="adjustPan|stateHidden">
+        </activity>
+        <!--
+        <activity
+            android:name=".LockViewActivity"
+            android:label="@string/title_activity_lock_view"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" >
+        </activity>
+
+        <service android:name=".lock.NsLockService" >
+        </service>
+        -->
+        <!-- 开机广播 -->
+        <!--
+        <receiver android:name=".lock.BootCompletedReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        -->
+
+        <activity
+            android:name=".BaseActivity"
+            android:label="@string/title_activity_base">
+        </activity>
+        <activity
+            android:name=".ScreenSaverActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+        <activity
+            android:name=".VoiceRecognitionActivity"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+        <activity
+            android:name=".CurtainRemoteCActivity"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+    </application>
+
+</manifest>

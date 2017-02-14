@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scence_action_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    >
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:layout_weight="5"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/scene_action_item_delay"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            style="@style/scene_operation_list_txt"
+            android:layout_weight="2"/>
+        <ImageView
+            android:id="@+id/scene_action_item_device_type"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp"
+        android:paddingLeft="25dp"
+        android:gravity="center"
+        android:background="@drawable/scene_operation_item_background_9">
+        <LinearLayout
+            android:id="@+id/scene_action_item_condition"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/scene_action_item_condition_name"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:padding="5dp"
+                style="@style/scene_operation_list_txt"
+                android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/scene_action_item_condition_condition"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:padding="5dp"
+                style="@style/scene_operation_list_txt"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <com.gmoonxs.www.orangehome.MySceneActionList
+            android:id="@+id/scene_action_item_action_list"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+        </com.gmoonxs.www.orangehome.MySceneActionList>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal"
+        android:layout_weight="4">
+        <ImageView
+            android:id="@+id/scene_action_item_setting"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:src="@drawable/scene_action_item_setting"/>
+        <ImageView
+            android:id="@+id/scene_action_item_delete"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:src="@drawable/scene_action_item_delete"/>
+        <ImageView
+            android:id="@+id/scene_action_item_up"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:src="@drawable/scene_action_item_up"/>
+        <ImageView
+            android:id="@+id/scene_action_item_down"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:src="@drawable/scene_action_item_down"/>
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

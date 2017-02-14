@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".IndexActivity"
+    android:orientation="vertical"
+    android:background="@drawable/background">
+
+
+    <!--功能切换栏-->
+    <include layout="@layout/function_tab"/>
+    <!--状态展示栏-->
+
+    <FrameLayout
+        android:clickable="false"
+        android:id="@+id/framelayout_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1">
+    </FrameLayout>
+
+
+</LinearLayout>

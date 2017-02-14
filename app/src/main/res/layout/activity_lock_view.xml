@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainFrame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparency" >
+
+    <com.gmoonxs.www.orangehome.lock.PullDoorView
+        android:id="@+id/my_pulldoorView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/tv_time"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerHorizontal="true"
+                        android:gravity="center"
+                        android:layout_marginTop="50dp"
+                        android:textColor="@android:color/white"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textSize="100sp" />
+
+                    <TextView
+                        android:id="@+id/tv_date"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_time"
+                        android:gravity="center_horizontal"
+                        android:textColor="@android:color/white"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textSize="18sp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/lock_state_board_display_hsb"
+                    android:layout_width="fill_parent"
+                    android:layout_height="300dp"
+                    android:visibility="gone"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/lock_state_board_display_no_scensor"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            style="@style/lock_state_board_display_center_txt"
+                            android:text="@string/state_display_inside_no_sensor"
+                            />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/lock_state_board_display_scensor_ready"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:orientation="vertical"
+                        android:layout_weight="1">
+                        <LinearLayout
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:orientation="horizontal"
+                            android:layout_weight="1">
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="fill_parent"
+                                android:layout_weight="1"
+                                style="@style/lock_state_board_display_center_txt"
+                                android:text="@string/state_display_inside_pm25"
+                                />
+                            <TextView
+                                android:id="@+id/lock_state_display_inside_pm25"
+                                android:layout_width="fill_parent"
+                                android:layout_height="fill_parent"
+                                android:layout_weight="1"
+                                style="@style/lock_state_board_display_center_txt"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:orientation="horizontal"
+                            android:layout_weight="1">
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="fill_parent"
+                                android:layout_weight="1"
+                                style="@style/lock_state_board_display_center_txt"
+                                android:text="@string/state_display_inside_wendu"
+                                />
+                            <TextView
+                                android:id="@+id/lock_state_display_inside_wendu"
+                                android:layout_width="fill_parent"
+                                android:layout_height="fill_parent"
+                                android:layout_weight="1"
+                                style="@style/lock_state_board_display_center_txt"/>
+
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:orientation="horizontal"
+                            android:layout_weight="1">
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="fill_parent"
+                                android:layout_weight="1"
+                                style="@style/lock_state_board_display_center_txt"
+                                android:text="@string/state_display_inside_shidu"
+                                />
+                            <TextView
+                                android:id="@+id/lock_state_display_inside_shidu"
+                                android:layout_width="fill_parent"
+                                android:layout_height="fill_parent"
+                                android:layout_weight="1"
+                                style="@style/lock_state_board_display_center_txt"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:orientation="horizontal"
+                            android:layout_weight="1">
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="fill_parent"
+                                android:layout_weight="1"
+                                style="@style/lock_state_board_display_center_txt"
+                                android:text="@string/state_display_inside_ranqi"
+                                />
+                            <TextView
+                                android:id="@+id/lock_state_display_inside_ranqi"
+                                android:layout_width="fill_parent"
+                                android:layout_height="fill_parent"
+                                android:layout_weight="1"
+                                style="@style/lock_state_board_display_center_txt"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bottom_layout"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:layout_weight="4"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:paddingRight="4dp"
+                    android:text="右滑解锁"
+                    android:textColor="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/iv_hint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+
+
+
+        <!--<LinearLayout
+            android:id="@+id/control_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/bottom_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="40dp"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <ImageButton
+                android:id="@+id/ib_reduce"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginRight="25dp"
+                android:background="@drawable/mass_reduce_img" />
+
+            <ImageButton
+                android:id="@+id/ib_stop"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginRight="25dp"
+                android:background="@drawable/mass_stop_img" />
+
+            <ImageButton
+                android:id="@+id/ib_add"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/mass_add_img" />
+        </LinearLayout>-->
+
+    </com.gmoonxs.www.orangehome.lock.PullDoorView>
+
+</FrameLayout>

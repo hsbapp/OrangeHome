@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+        <TextView
+            android:background="@drawable/button"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="10dp"
+            android:text="@string/scence_operation_activity_add_oreration_action"
+            style="@style/scene_operation_activity_txt_normal"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

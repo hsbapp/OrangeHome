@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal"
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/scene_action_item_action_name"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="5dp"
+            style="@style/scene_operation_list_txt"
+            android:layout_weight="1"/>
+        <TextView
+            android:id="@+id/scene_action_item_action_action"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="5dp"
+            style="@style/scene_operation_list_txt"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

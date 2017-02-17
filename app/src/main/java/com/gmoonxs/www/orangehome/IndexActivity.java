@@ -22,7 +22,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.Inflater;
 
-public class IndexActivity extends FragmentActivity implements FirstPageFragment.OnFragmentInteractionListener,DeviceListFragment.OnFragmentInteractionListener,SceneFragment.OnFragmentInteractionListener{
+public class IndexActivity extends FragmentActivity implements FirstPageFragment.OnFragmentInteractionListener,DeviceListFragment.OnFragmentInteractionListener,SceneFragment.OnFragmentInteractionListener
+{
     private FirstPageFragment firstpageFragment;
     private DeviceListFragment deviceListFragment;
     private SceneFragment sceneFragment;
@@ -120,7 +121,8 @@ public class IndexActivity extends FragmentActivity implements FirstPageFragment
     }
 
 
-    private void transFragmentTo(Fragment newFragment){
+    private void transFragmentTo(Fragment newFragment)
+    {
        /* handler.removeCallbacks(runnable);
         handler.postDelayed(runnable, 1000 * Constant.LOCK_SCREEN_TIME);*/
         FragmentTransaction transaction = contentFragmentManager.beginTransaction();

@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cg.hsb.HsbDevice;
-import com.cg.hsb.HsbDeviceConfig;
 
 import java.util.List;
 
@@ -65,9 +64,7 @@ public class EditDeviceActivity extends BaseActivity {
         edit_device_activity_device_type=(TextView)findViewById(R.id.edit_device_activity_device_type);
         edit_device_activity_edit_device_button=(ImageView)findViewById(R.id.edit_device_activity_edit_device_button);
         edit_device_activity_cancel_button=(ImageView)findViewById(R.id.edit_device_activity_cancel_button);
-        if(hsbDevice.GetDevType()<Constant.DEVICE_TYPE_ALL.length) {
-            edit_device_activity_device_type.setText(Constant.DEVICE_TYPE_ALL[hsbDevice.GetDevType()]);
-        }
+        edit_device_activity_device_type.setText(hsbDevice.GetDevType());
         edit_device_activity_device_name.setText(hsbDevice.GetName());
         edit_device_activity_device_location.setText(hsbDevice.GetLocation());
         edit_device_activity_edit_device_button.setOnClickListener(new View.OnClickListener() {
@@ -80,8 +77,8 @@ public class EditDeviceActivity extends BaseActivity {
                 } else if (deviceLocation.length() < 0 || deviceLocation.toString().length() > 20) {
                     Toast.makeText(EditDeviceActivity.this, getBaseContext().getResources().getText(R.string.add_device_activity_device_location_error), Toast.LENGTH_SHORT).show();
                 } else {
-                    HsbDeviceConfig hsbDeviceConfig = new HsbDeviceConfig(deviceName,deviceLocation);
-                    hsbDevice.SetConfig(hsbDeviceConfig);
+                    hsbDevice.SetName(deviceName);
+                    hsbDevice.SetLocation(deviceLocation);
                     Toast.makeText(EditDeviceActivity.this, getBaseContext().getResources().getText(R.string.edit_device_activity_success), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(EditDeviceActivity.this, DeviceListFragment.class);
                     setResult(RESULT_CODE, intent);

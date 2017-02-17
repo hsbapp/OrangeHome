@@ -15,9 +15,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cg.hsb.CC9201Listener;
-import com.cg.hsb.GrayAirConditioner;
-import com.cg.hsb.GrayAirConditionerListener;
+import com.cg.hsb.ACDevice;
+import com.cg.hsb.HsbDevice;
+import com.cg.hsb.HsbDeviceListener;
 import com.cg.hsb.HsbListener;
 
 public class AirCRemoteCActivity extends BaseActivity {
@@ -25,7 +25,7 @@ public class AirCRemoteCActivity extends BaseActivity {
     TextView air_c_remote_c_name,air_c_remote_c_temperature,air_c_remote_c_air_c_remote_c_mode,air_c_remote_c_air_c_remote_c_wend_speed,air_c_remote_c_name_off;
     ImageView air_c_remote_c_air_c_remote_c_switch,air_c_remote_c_air_c_remote_c_mode1,air_c_remote_c_air_c_remote_c_tem_add,air_c_remote_c_air_c_remote_c_tem_sub;
     ImageView air_c_remote_c_air_c_remote_c_wind_speed,air_c_remote_c_air_c_remote_c_wend_light,air_c_remote_c_air_c_remote_c_wend_voice_r;
-    GrayAirConditioner airConditioner;
+    ACDevice airConditioner;
     private static final int AC_UPDATE=1;
     int device_id;
     private Handler handler;
@@ -89,96 +89,70 @@ public class AirCRemoteCActivity extends BaseActivity {
         air_conditioner_off=(LinearLayout)findViewById(R.id.air_conditioner_off);
         air_conditioner_off.setVisibility(View.GONE);
         air_conditioner_on=(LinearLayout)findViewById(R.id.air_conditioner_on);
-        airConditioner=(GrayAirConditioner)OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(device_id);
+        airConditioner=(ACDevice)OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(device_id);
 
-        airConditioner.SetListener(new GrayAirConditionerListener(){
+        airConditioner.SetListener(new HsbDeviceListener()
+        {
             @Override
-            public void onWorkModeStatusUpdated(int WorkMode) {
-                Message message = new Message();
-                message.what = AC_UPDATE;
-                handler.sendMessage(message);
-            }
-            @Override
-            public void onPowerStatusUpdated(int power) {
-                Message message = new Message();
-                message.what = AC_UPDATE;
-                handler.sendMessage(message);
-            }
-            @Override
-            public void onTemperatureStatusUpdated(int temperature) {
-                Log.d("acTemperature","["+airConditioner.Temperature()+"]");
-                Message message = new Message();
-                message.what = AC_UPDATE;
-                handler.sendMessage(message);
-            }
-            @Override
-            public void onLightStatusUpdated(int light) {
-
-                Message message = new Message();
-                message.what = AC_UPDATE;
-                handler.sendMessage(message);
-            }
-            @Override
-            public void onWindSpeedStatusUpdated(int WindSpeed) {
+            public void onDeviceUpdated(HsbDevice device)
+            {
                 Message message = new Message();
                 message.what = AC_UPDATE;
                 handler.sendMessage(message);
             }
         });
-        airConditioner.ConfigVR();
 
         setLeftShow();
         air_c_remote_c_air_c_remote_c_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                airConditioner.SetPower(airConditioner.Power() == 0 ? 1 : 0);
+                airConditioner.SetPower(airConditioner.GetPower() ? false : true);
+/*
                 if (airConditioner.Power()==0){
                     OrangeHomeApplication.getOrangeHomeApplication().addToLogsDB(getBaseContext().getResources().getString(R.string.log_info_ac_power_off)+airConditioner.GetName());
                 }else if (airConditioner.Power()==1){
                     OrangeHomeApplication.getOrangeHomeApplication().addToLogsDB(getBaseContext().getResources().getString(R.string.log_info_ac_power_on)+airConditioner.GetName());
                 }
+*/
             }
         });
         air_c_remote_c_air_c_remote_c_mode1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                airConditioner.SetWorkMode((airConditioner.WorkMode() + 1) % 5);
+                airConditioner.NextWorkMode();
             }
         });
         air_c_remote_c_air_c_remote_c_tem_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (airConditioner.Temperature()<airConditioner.TEMPERATURE_MAX){
-                    airConditioner.SetTemperature(airConditioner.Temperature() + 1);
-                }
+                airConditioner.AddTemperature();
             }
         });
 
         air_c_remote_c_air_c_remote_c_tem_sub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (airConditioner.Temperature()>airConditioner.TEMPERATURE_MIN){
-                    airConditioner.SetTemperature(airConditioner.Temperature() - 1);
-                }
+                airConditioner.DecTemperature();
             }
         });
         air_c_remote_c_air_c_remote_c_wind_speed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                airConditioner.SetWindSpeed((airConditioner.WindSpeed() + 1) % 4);
+                airConditioner.NextWindSpeed();
             }
         });
 
         air_c_remote_c_air_c_remote_c_wend_light.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                airConditioner.SetLight(airConditioner.Light() == 0 ? 1 : 0);
+                airConditioner.SetLight(airConditioner.GetLight() ? false : true);
             }
         });
 
         air_c_remote_c_air_c_remote_c_wend_voice_r.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+/*
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                     Toast.makeText(AirCRemoteCActivity.this,getBaseContext().getResources().getText(R.string.start_voice_recognizer),Toast.LENGTH_LONG).show();
                     OrangeHomeApplication.getOrangeHomeApplication().getmProto().StartVoiceRecognizer();
@@ -186,6 +160,7 @@ public class AirCRemoteCActivity extends BaseActivity {
                 else if(motionEvent.getAction() == MotionEvent.ACTION_UP){
                     OrangeHomeApplication.getOrangeHomeApplication().getmProto().StopVoiceRecognizer();
                 }
+*/
                 return false;
             }
         });
@@ -196,15 +171,15 @@ public class AirCRemoteCActivity extends BaseActivity {
 
 
     private void setLeftShow(){
-        if(airConditioner.Power()==1){
+        if(airConditioner.GetPower()){
             air_conditioner_off.setVisibility(View.GONE);
             air_conditioner_on.setVisibility(View.VISIBLE);
             air_c_remote_c_name.setText(airConditioner.GetName());
-            air_c_remote_c_temperature.setText(airConditioner.Temperature()+" ");
-            air_c_remote_c_air_c_remote_c_mode.setText(Constant.AC_WORK_MODE[airConditioner.WorkMode()]);
-            air_c_remote_c_air_c_remote_c_wend_speed.setText(Constant.AC_WIND_SPEED[airConditioner.WindSpeed()]);
+            air_c_remote_c_temperature.setText(airConditioner.GetTemperature()+" ");
+            air_c_remote_c_air_c_remote_c_mode.setText(airConditioner.GetWorkMode());
+            air_c_remote_c_air_c_remote_c_wend_speed.setText(airConditioner.GetWindSpeed());
         }
-        else if(airConditioner.Power()==0){
+        else if(!airConditioner.GetPower()){
             air_conditioner_on.setVisibility(View.GONE);
             air_conditioner_off.setVisibility(View.VISIBLE);
             air_c_remote_c_name_off.setText(airConditioner.GetName());
@@ -219,41 +194,15 @@ public class AirCRemoteCActivity extends BaseActivity {
 
     @Override
     protected void onRestart() {
-        airConditioner.SetListener(new GrayAirConditionerListener(){
+        airConditioner.SetListener(new HsbDeviceListener() {
             @Override
-            public void onWorkModeStatusUpdated(int WorkMode) {
-                Message message = new Message();
-                message.what = AC_UPDATE;
-                handler.sendMessage(message);
-            }
-            @Override
-            public void onPowerStatusUpdated(int power) {
-                Message message = new Message();
-                message.what = AC_UPDATE;
-                handler.sendMessage(message);
-            }
-            @Override
-            public void onTemperatureStatusUpdated(int temperature) {
-                Log.d("acTemperature","["+airConditioner.Temperature()+"]");
-                Message message = new Message();
-                message.what = AC_UPDATE;
-                handler.sendMessage(message);
-            }
-            @Override
-            public void onLightStatusUpdated(int light) {
-
-                Message message = new Message();
-                message.what = AC_UPDATE;
-                handler.sendMessage(message);
-            }
-            @Override
-            public void onWindSpeedStatusUpdated(int WindSpeed) {
+            public void onDeviceUpdated(HsbDevice device) {
                 Message message = new Message();
                 message.what = AC_UPDATE;
                 handler.sendMessage(message);
             }
         });
-        airConditioner.ConfigVR();
+
         super.onRestart();
     }
 

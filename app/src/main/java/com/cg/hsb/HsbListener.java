@@ -12,9 +12,8 @@ public class HsbListener {
     public void onDeviceOnline(HsbDevice device) {}
     public void onDeviceOffline(HsbDevice device) {}
 
-    public void onProbeResult(int errcode) {}
     public void onAddDevResult(int errcode) {}
     public void onDelDevResult(int errcode) {}
 
-    public void onDeviceStatusUpdated(HsbDevice device, HsbDeviceStatus status) {}
+    public void onDeviceUpdated(HsbDevice device) {}
 }

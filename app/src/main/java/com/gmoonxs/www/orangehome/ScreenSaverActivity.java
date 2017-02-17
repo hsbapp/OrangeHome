@@ -18,8 +18,8 @@ import android.widget.TextView;
 
 import com.cg.hsb.HsbConstant;
 import com.cg.hsb.HsbDevice;
+import com.cg.hsb.HsbDeviceListener;
 import com.cg.hsb.SensorDevice;
-import com.cg.hsb.SensorDeviceListener;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -226,38 +226,21 @@ public class ScreenSaverActivity extends BaseActivity {
 							hasSensor=true;
 							SensorDevice sensor = (SensorDevice) device;
 							//getPMOnline(sensor);
-							pm_2_5 = sensor.PM25Status();
-							wendu=sensor.TemperatureStatus();
-							shidu=sensor.HumidityStatus();
-							ranqi=sensor.GasStatus();
+							pm_2_5 = sensor.GetPM25();
+							wendu=sensor.GetTemperature();
+							shidu=sensor.GetHumidity();
+							ranqi=sensor.GetGas();
 							Message message = new Message();
 							message.what = PM2_5_UPDATE;
 							mHandler.sendMessage(message); //告诉主线程执行任务
-							sensor.SetListener(new SensorDeviceListener() {
+							sensor.SetListener(new HsbDeviceListener() {
 								@Override
-								public void onPm25StatusUpdated(int val) {
-									Log.d("onPm25StatusUpdated", val + "");
-									pm_2_5 = val;
-									Message message = new Message();
-									message.what = PM2_5_UPDATE;
-									mHandler.sendMessage(message); //告诉主线程执行任务
-								}
-								public void onTempStatusUpdated(int val) {
-									wendu=val;
-									Message message = new Message();
-									message.what = PM2_5_UPDATE;
-									mHandler.sendMessage(message);
-								}
-
-								public void onHumidityStatusUpdated(int val) {
-									shidu=val;
-									Message message = new Message();
-									message.what = PM2_5_UPDATE;
-									mHandler.sendMessage(message);
-								}
-
-								public void onGasStatusUpdated(int val) {
-									ranqi=val;
+								public void onDeviceUpdated(HsbDevice device) {
+									SensorDevice _sensor = (SensorDevice)device;
+									pm_2_5 = _sensor.GetPM25();
+									wendu = _sensor.GetTemperature();
+									shidu = _sensor.GetHumidity();
+									ranqi = _sensor.GetGas();
 									Message message = new Message();
 									message.what = PM2_5_UPDATE;
 									mHandler.sendMessage(message);

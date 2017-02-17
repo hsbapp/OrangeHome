@@ -2,21 +2,28 @@
 package com.cg.hsb;
 
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.cg.hsb.*;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 public class  HsbDevice {
     protected int mDevId;
+    protected String mDevType = "";
+    protected String mIrType = "";
+    protected String mMac;
+    protected String mName;
+    protected String mLocation;
 
-    protected HsbDeviceInfo mInfo;
-    protected HsbDeviceConfig mConfig;
-    protected HsbDeviceStatus mStatus;
+    protected ArrayList<HsbDeviceEndpoint> mEndpoints;
 
     protected boolean mOnline;
     protected ArrayList<HsbChannel> mChannelList;
-    protected ArrayList<HsbDeviceState> mStates;
 
     protected Protocol mProto = null;
     protected HsbDeviceListener mListener = null;
@@ -27,13 +34,40 @@ public class  HsbDevice {
         mProto = proto;
         mOnline = true;
         mDevId = devid;
-        mInfo = new HsbDeviceInfo();
-        mConfig = new HsbDeviceConfig();
         mChannelList = null;
-        mStatus = null;
-        mStates = new ArrayList<HsbDeviceState>();
+        mEndpoints = new ArrayList<HsbDeviceEndpoint>();
         mSupportCondition = false;
         mSupportAction = false;
+        mName = "";
+        mLocation = "";
+    }
+
+    static public HsbDevice CreateDevice(Protocol proto, int devid, String devtype, String irtype)
+    {
+        HsbDevice device = null;
+
+        if (devtype == HsbConstant.HSB_DEV_TYPE_PLUG) {
+            device = new PlugDevice(proto, devid);
+        } else if (devtype == HsbConstant.HSB_DEV_TYPE_SENSOR) {
+            device = new SensorDevice(proto, devid);
+        } else if (devtype == HsbConstant.HSB_DEV_TYPE_REMOTE_CTL) {
+            device = new RemoteCtlDevice(proto, devid);
+        } else if (devtype == HsbConstant.HSB_DEV_TYPE_IR) {
+            if (irtype == HsbConstant.HSB_IR_TYPE_TV) {
+                device = new TVDevice(proto, devid);
+            } else if (irtype == HsbConstant.HSB_IR_TYPE_AC) {
+                device = new ACDevice(proto, devid);
+            }
+        } else if (devtype == HsbConstant.HSB_DEV_TYPE_RELAY) {
+            device = new RelayDevice(proto, devid);
+        } else if (devtype == HsbConstant.HSB_DEV_TYPE_CURTAIN) {
+            device = new CurtainDevice(proto, devid);
+        }
+
+        if (null == device)
+            device = new HsbDevice(proto, devid);
+
+        return device;
     }
 
     public void Offline()
@@ -45,6 +79,295 @@ public class  HsbDevice {
         if (null != mProto && mOnline)
             return true;
         return false;
+    }
+
+    protected HsbDeviceEndpoint FindEndpoint(int epid)
+    {
+        for (int id = 0; id < mEndpoints.size(); id++)
+        {
+            HsbDeviceEndpoint ep = mEndpoints.get(id);
+            if (ep.GetID() == epid)
+                return ep;
+        }
+
+        return null;
+    }
+
+    protected HsbDeviceEndpoint FindEndpoint(String name)
+    {
+        for (int id = 0; id < mEndpoints.size(); id++)
+        {
+            HsbDeviceEndpoint ep = mEndpoints.get(id);
+            if (ep.GetName() == name)
+                return ep;
+        }
+
+        return null;
+    }
+
+    public boolean SetObject(JSONObject object)
+    {
+        try {
+            if (!object.has("mac") || !object.has("devtype"))
+                return false;
+
+            mMac = object.getString("mac");
+            mDevType = object.getString("devtype");
+
+            if (object.has("irtype"))
+            {
+                mIrType = object.getString("irtype");
+            }
+
+            if (object.has("attrs"))
+            {
+                JSONObject attrs = object.getJSONObject("attrs");
+                mName = attrs.getString("name");
+                mLocation = attrs.getString("location");
+            }
+
+            if (object.has("endpoints"))
+            {
+                JSONArray eps = object.getJSONArray("endpoints");
+                for (int i = 0; i < eps.length(); i++)
+                {
+                    JSONObject ep = (JSONObject)eps.opt(i);
+                    if (!ep.has("epid"))
+                        continue;
+
+                    int epid = ep.getInt("epid");
+                    HsbDeviceEndpoint endpoint = FindEndpoint(epid);
+                    if (null == endpoint)
+                    {
+                        endpoint = new HsbDeviceEndpoint(epid);
+                        mEndpoints.add(endpoint);
+                    }
+
+                    endpoint.SetObject(ep);
+                }
+            }
+        } catch (JSONException e) {
+            Log.e("hsbservice", "SetObject fail");
+            return false;
+        }
+
+        UpdateCapabilities();
+
+        onDeviceUpdated();
+
+        return true;
+    }
+
+    private void onDeviceUpdated()
+    {
+        if (null != mListener)
+            mListener.onDeviceUpdated(this);
+    }
+
+    protected boolean SetEndpointVal(String name, int val)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(name);
+        if (null == ep)
+            return false;
+
+        return SetEndpointVal(ep, val);
+    }
+
+    protected boolean SetEndpointVal(String name, String valDesc)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(name);
+        if (null == ep)
+            return false;
+
+        return SetEndpointVal(ep, ep.GetVal(valDesc));
+    }
+
+    protected boolean SetEndpointVal(int id, int val)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(id);
+        if (null == ep)
+            return false;
+
+        return SetEndpointVal(ep, val);
+    }
+
+    protected boolean SetEndpointVal(HsbDeviceEndpoint endpoint, int val)
+    {
+        if (!endpoint.CheckVal(val))
+            return false;
+
+        int epid = endpoint.GetID();
+        JSONObject object = null;
+
+        try {
+            object = new JSONObject();
+            object.put("devid", mDevId);
+
+            JSONArray eps = new JSONArray();
+            JSONObject ep = new JSONObject();
+            ep.put("epid", epid);
+            ep.put("val", val);
+            eps.put(ep);
+            object.put("endpoints", eps);
+        } catch (JSONException e) {
+            Log.e("hsbservice", "SetName fail");
+            return false;
+        }
+
+        return mProto.SetDevice(object);
+    }
+
+    protected boolean AddEndpointVal(int id)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(id);
+        if (null == ep)
+            return false;
+
+        int val = ep.GetNextVal();
+
+        return SetEndpointVal(ep, val);
+    }
+
+    protected boolean AddEndpointVal(String name)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(name);
+        if (null == ep)
+            return false;
+
+        int val = ep.GetNextVal();
+
+        return SetEndpointVal(ep, val);
+    }
+
+    protected boolean DecEndpointVal(int id)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(id);
+        if (null == ep)
+            return false;
+
+        int val = ep.GetPrevVal();
+
+        return SetEndpointVal(ep, val);
+    }
+
+    protected boolean DecEndpointVal(String name)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(name);
+        if (null == ep)
+            return false;
+
+        int val = ep.GetPrevVal();
+
+        return SetEndpointVal(ep, val);
+    }
+
+    protected int GetEndpointVal(int id)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(id);
+        if (null == ep)
+            return 0;
+
+        return GetEndpointVal(ep);
+    }
+
+    protected int GetEndpointVal(String name)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(name);
+        if (null == ep)
+            return 0;
+
+        return GetEndpointVal(ep);
+    }
+
+    protected int GetEndpointVal(HsbDeviceEndpoint endpoint)
+    {
+        return endpoint.GetVal();
+    }
+
+    protected String GetEndpointValDesc(int id)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(id);
+        if (null == ep)
+            return "";
+
+        return GetEndpointValDesc(ep);
+    }
+
+    protected String GetEndpointValDesc(String name)
+    {
+        HsbDeviceEndpoint ep = FindEndpoint(name);
+        if (null == ep)
+            return "";
+
+        return GetEndpointValDesc(ep);
+    }
+
+    protected String GetEndpointValDesc(HsbDeviceEndpoint endpoint)
+    {
+        return endpoint.GetValDesc();
+    }
+
+    private boolean SetAttrs(String name, String value)
+    {
+        JSONObject object = null;
+        try {
+            object = new JSONObject();
+            object.put("devid", mDevId);
+
+            JSONObject attrs = new JSONObject();
+            attrs.put(name, value);
+            object.put("attrs", attrs);
+        } catch (JSONException e) {
+            Log.e("hsbservice", "SetName fail");
+            return false;
+        }
+
+        return mProto.SetDevice(object);
+    }
+
+    public void UpdateCapabilities()
+    {
+        if (mSupportCondition && mSupportAction)
+            return;
+
+        for (int id = 0; id < mEndpoints.size(); id++)
+        {
+            HsbDeviceEndpoint ep = mEndpoints.get(id);
+            if (!mSupportCondition && ep.Readable())
+                mSupportCondition = true;
+            if (!mSupportAction && ep.Writable())
+                mSupportAction = true;
+        }
+    }
+
+    public HsbDeviceCondition MakeCondition(HsbDeviceEndpoint ep, int val, String expr)
+    {
+        return new HsbDeviceCondition(mDevId, ep.GetID(), val, expr);
+    }
+
+    public HsbDeviceCondition MakeCondition(HsbDeviceEndpoint ep, String valDesc, String expr)
+    {
+        return new HsbDeviceCondition(mDevId, ep.GetID(), ep.GetVal(valDesc), expr);
+    }
+
+    public HsbDeviceAction MakeAction(HsbDeviceEndpoint ep, int val)
+    {
+        return new HsbDeviceAction(mDevId, ep.GetID(), val);
+    }
+
+    public HsbDeviceAction MakeAction(HsbDeviceEndpoint ep, String valDesc)
+    {
+        return new HsbDeviceAction(mDevId, ep.GetID(), ep.GetVal(valDesc));
+    }
+
+    public boolean SetName(String name)
+    {
+        return SetAttrs("name", name);
+    }
+
+    public boolean SetLocation(String location)
+    {
+        return SetAttrs("location", location);
     }
 
     public void SetListener(HsbDeviceListener listener) {
@@ -59,37 +382,12 @@ public class  HsbDevice {
         return mDevId;
     }
 
-    public int GetDevType() {
-        return mInfo.GetDevType();
+    public String GetDevType() {
+        return mDevType;
     }
 
-    public HsbDeviceState GetState(int id) {
-        HsbDeviceState state = null;
-        int cnt;
-
-        for (cnt = 0; cnt < mStates.size(); cnt++) {
-            state = mStates.get(cnt);
-            if (state.GetID() == id)
-                return state;
-        }
-
-        return null;
-    }
-
-    public ArrayList<HsbDeviceState> GetState() {
-        return mStates;
-    }
-
-    public void UpdateCapabilities() {
-        int id;
-        HsbDeviceState state = null;
-        for (id = 0; id < mStates.size(); id++) {
-            state = mStates.get(id);
-            if (!mSupportCondition && state.Readable())
-                mSupportCondition = true;
-            if (!mSupportAction && state.Writable())
-                mSupportAction = true;
-        }
+    public String GetIrType() {
+        return mIrType;
     }
 
     public boolean SupportCondition() {
@@ -100,84 +398,12 @@ public class  HsbDevice {
         return mSupportAction;
     }
 
-    public void GetStatus() {
-        mProto.GetDeviceStatus(mDevId);
-    }
-
-    public void SetStatus(HsbDeviceStatus status) {
-        if (!Available())
-            return;
-        mProto.SetDeviceStatus(mDevId, status);
-    }
-
-    public void onStatusUpdated(HsbDeviceStatus status) {
-        if (mStatus != null) {
-            mStatus.Updated(status);
-        }
-    }
-
-    public boolean SupportPower() {
-        return false;
-    }
-
-    public void SetPowerStatus(boolean power) {}
-
-    public HsbDeviceAction MakePowerAction(boolean power) {
-        return null;
-    }
-
-    public void GetInfo(HsbDeviceInfo info) {
-        info.Set(mInfo);
-    }
-
-    public void GetInfo() {
-        if (!Available())
-            return;
-        mProto.GetDeviceInfo(mDevId);
-    }
-
-    public void onInfoUpdated(HsbDeviceInfo info)
-    {
-        mInfo.Set(info);
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onInfoUpdated(info);
-    }
-
-    public void SetConfig(HsbDeviceConfig config)
-    {
-        if (!Available())
-            return;
-        mProto.SetDeviceConfig(mDevId, config);
-
-        onConfigUpdated(config);
-    }
-
-    public void GetConfig()
-    {
-        if (!Available())
-            return;
-        mProto.GetDeviceConfig(mDevId);
-    }
-
-    public void onConfigUpdated(HsbDeviceConfig config)
-    {
-        mConfig.Set(config);
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onConfigUpdated(config);
-    }
-
-    public void GetConfig(HsbDeviceConfig config) {
-        config.Set(mConfig);
-    }
-
     public String GetName() {
-        return mConfig.GetName();
+        return mName;
     }
 
     public String GetLocation() {
-        return mConfig.GetLocation();
+        return mLocation;
     }
 
     public boolean SupportChannel() {
@@ -188,34 +414,12 @@ public class  HsbDevice {
         return mChannelList;
     }
 
-    public void GetChannel() {
-        if (!Available() || !SupportChannel())
-            return;
-
-        mProto.GetDeviceChannel(mDevId);
-    }
-
-    public void onChannelUpdated(String name, int id) {
-        if (!SupportChannel())
-            return;
-
-        HsbChannel channel = new HsbChannel(name, id);
-        int index = mChannelList.indexOf(channel);
-
-        if (index < 0) {
-            mChannelList.add(channel);
-        } else {
-            channel = mChannelList.get(index);
-            channel.mId = id;
-        }
-    }
-
     public void SetChannel(String name, int id)
     {
         if (!Available() || !SupportChannel())
             return;
 
-        mProto.SetDeviceChannel(mDevId, name, id);
+        // TODO
     }
 
     public void DelChannel(String name)
@@ -223,12 +427,7 @@ public class  HsbDevice {
         if (!Available() || !SupportChannel())
             return;
 
-        mProto.DelDeviceChannel(mDevId, name);
-
-        int index = mChannelList.indexOf(new HsbChannel(name, 0));
-        if (index < 0)
-            return;
-        mChannelList.remove(index);
+        // TODO
     }
 
     public void SwitchChannel(String name)
@@ -236,220 +435,13 @@ public class  HsbDevice {
         if (!Available() || !SupportChannel())
             return;
 
-        mProto.SwitchDeviceChannel(mDevId, name);
+        // TODO
     }
 
-    public void GetTimer(int id)
-    {
-        if (!Available())
-            return;
-        mProto.GetDeviceTimer(mDevId, id);
-    }
-
-    public void SetTimer(int id, HsbDeviceTimer timer)
-    {
-        if (!Available())
-            return;
-        mProto.SetDeviceTimer(mDevId, id, timer);
-    }
-
-    public void DelTimer(int id)
-    {
-        if (!Available())
-            return;
-        mProto.DelDeviceTimer(mDevId, id);
-    }
-
-    public void onTimerUpdated(int id, HsbDeviceTimer timer)
-    {
+    public void onSetDeviceResult(int errcode) {
         HsbDeviceListener listener = GetListener();
         if (listener != null)
-            listener.onTimerUpdated(id, timer);
-    }
-
-    public void GetDelay(int id)
-    {
-        if (!Available())
-            return;
-        mProto.GetDeviceDelay(mDevId, id);
-    }
-
-    public void SetDelay(int id, HsbDeviceDelay delay)
-    {
-        if (!Available())
-            return;
-        mProto.SetDeviceDelay(mDevId, id, delay);
-    }
-
-    public void DelDelay(int id)
-    {
-        if (!Available())
-            return;
-        mProto.DelDeviceDelay(mDevId, id);
-    }
-
-    public void onDelayUpdated(int id, HsbDeviceDelay delay)
-    {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onDelayUpdated(id, delay);
-    }
-
-    public void GetLinkage(int id)
-    {
-        if (!Available())
-            return;
-        mProto.GetDeviceLinkage(mDevId, id);
-    }
-
-    public void SetLinkage(int id, HsbDeviceLinkage link)
-    {
-        if (!Available())
-            return;
-        mProto.SetDeviceLinkage(mDevId, id, link);
-    }
-
-    public void DelLinkage(int id)
-    {
-        if (!Available())
-            return;
-        mProto.DelDeviceLinkage(mDevId, id);
-    }
-
-    public void onLinkageUpdated(int id, HsbDeviceLinkage link)
-    {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onLinkageUpdated(id, link);
-    }
-
-    public void DoAction(HsbDeviceAction action)
-    {
-        if (!Available())
-            return;
-        mProto.DoAction(mDevId, action);
-    }
-
-    public void onSensorTiggered(int param1, int param2) {
-
-    }
-
-    public void onSensorRecovered(int param1, int param2) {
-
-    }
-
-    public void onGetInfoError(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onGetInfoError(errcode);
-    }
-
-    public void onSetConfigResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onSetConfigResult(errcode);
-    }
-
-    public void onGetConfigError(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onGetConfigError(errcode);
-    }
-
-    public void onGetStatusError(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onGetStatusError(errcode);
-    }
-
-    public void onSetStatusResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onSetStatusResult(errcode);
-    }
-
-    public void onSetChannelResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onSetChannelResult(errcode);
-    }
-
-    public void onDelChannelResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onDelChannelResult(errcode);
-    }
-
-    public void onSwitchChannelResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onSwitchChannelResult(errcode);
-    }
-
-    public void onGetChannelResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onGetChannelResult(errcode);
-    }
-
-    public void onGetTimerError(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onGetTimerError(errcode);
-    }
-
-    public void onSetTimerResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onSetTimerResult(errcode);
-    }
-
-    public void onDelTimerResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onDelTimerResult(errcode);
-    }
-
-    public void onGetDelayError(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onGetDelayError(errcode);
-    }
-
-    public void onSetDelayResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onSetDelayResult(errcode);
-    }
-
-    public void onDelDelayResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onDelDelayResult(errcode);
-    }
-
-    public void onGetLinkageError(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onGetLinkageError(errcode);
-    }
-
-    public void onSetLinkageResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onSetLinkageResult(errcode);
-    }
-
-    public void onDelLinkageResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onDelLinkageResult(errcode);
-    }
-
-    public void onDoActionResult(int errcode) {
-        HsbDeviceListener listener = GetListener();
-        if (listener != null)
-            listener.onDoActionResult(errcode);
+            listener.onSetDeviceResult(errcode);
     }
 
     @Override
@@ -463,21 +455,6 @@ public class  HsbDevice {
         }
 
         return sameSame;
-    }
-
-    /* Voice Recognizer related APIs */
-    public boolean SupportVR() {
-        return false;
-    }
-
-    public void ConfigVR() {}
-
-    public void ConfigVoiceRecognizer(ArrayList<String> actions, ArrayList<String> objects) {
-        mProto.ConfigVoiceRecognizer(this, actions, objects);
-    }
-
-    public boolean onVoiceRecognizerResult(String result) {
-        return false;
     }
 
     /* Channel */

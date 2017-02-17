@@ -12,10 +12,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cg.hsb.CC9201;
-import com.cg.hsb.CC9201Listener;
-import com.cg.hsb.HsbConst;
 import com.cg.hsb.HsbDevice;
+import com.cg.hsb.HsbDeviceListener;
+import com.cg.hsb.TVDevice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ public class ChannelAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private Context mContext;
     private boolean isDelete=false;
-    private CC9201 cc9201;
+    private TVDevice cc9201;
     private Handler handler;
     private static final int CHANNEL_GET=1;
 
@@ -37,7 +36,7 @@ public class ChannelAdapter extends BaseAdapter {
         mContext=activityContext;
         inflater=LayoutInflater.from(context);
         this.devid=devid;
-        cc9201=(CC9201)OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(devid);
+        cc9201=(TVDevice)OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(devid);
         handler=new Handler() {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
@@ -156,25 +155,22 @@ public class ChannelAdapter extends BaseAdapter {
         channelListViewHolder.channel_list_item_channel_enter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cc9201.SetChannelStatus(hsbChannel.GetId());
+                //cc9201.SetChannelStatus(hsbChannel.GetId());
+                // TODO
             }
         });
         return view;
     }
 
     private void init(){
-        cc9201.SetListener(new CC9201Listener() {
+        cc9201.SetListener(new HsbDeviceListener() {
             @Override
-            public void onGetChannelResult(int errcode) {
-                if (errcode == HsbConst.HSB_E_OK) {
-                    Message message = new Message();
-                    message.what = CHANNEL_GET;
-                    handler.sendMessage(message); //告诉主线程执行任务
-                } else {
-                }
+            public void onDeviceUpdated(HsbDevice device) {
+                Message message = new Message();
+                message.what = CHANNEL_GET;
+                handler.sendMessage(message);
             }
         });
-        cc9201.GetChannel();
     }
 
     private void getChannelList(){

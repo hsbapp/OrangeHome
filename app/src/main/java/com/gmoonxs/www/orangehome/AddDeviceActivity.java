@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.cg.hsb.HsbDeviceConfig;
 import com.cg.hsb.Protocol;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class AddDeviceActivity extends BaseActivity {
     private ArrayAdapter<String> adapter;
     String deviceName,deviceLocation,ipAddress,deviceNote,deviceType;
     public static final int RESULT_CODE=1;
-    private int selectTypeId;
+    private String selectTypeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +76,7 @@ public class AddDeviceActivity extends BaseActivity {
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 // TODO Auto-generated method stub
                 deviceType=(String) add_device_activity_device_type.getSelectedItem();
-                selectTypeId=Constant.DEVICE_TYPE_ID[arg2];
+                selectTypeId=Constant.IR_TYPE_ALL[arg2];
                 arg0.setVisibility(View.VISIBLE);
             }
 
@@ -101,8 +100,8 @@ public class AddDeviceActivity extends BaseActivity {
                     Toast.makeText(AddDeviceActivity.this, getBaseContext().getResources().getText(R.string.add_device_activity_device_note_error), Toast.LENGTH_SHORT).show();
                 } else {
                     Protocol protocol = OrangeHomeApplication.getOrangeHomeApplication().getmProto();
-                    HsbDeviceConfig hsbDeviceConfig = new HsbDeviceConfig(deviceName, deviceLocation);
-                    protocol.AddDevice(3, selectTypeId, hsbDeviceConfig);
+                    //protocol.AddDevice(3, selectTypeId, hsbDeviceConfig);
+                    protocol.AddDevice(selectTypeId, deviceName, deviceLocation);
                     Toast.makeText(AddDeviceActivity.this, getBaseContext().getResources().getText(R.string.add_device_activity_success), Toast.LENGTH_SHORT).show();
                     OrangeHomeApplication.getOrangeHomeApplication().addToLogsDB(getBaseContext().getResources().getText(R.string.log_info_add_device)+deviceName);
                     Intent intent = new Intent(AddDeviceActivity.this, DeviceListFragment.class);

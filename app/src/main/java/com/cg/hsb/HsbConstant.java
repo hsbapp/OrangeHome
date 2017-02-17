@@ -9,11 +9,15 @@ public class HsbConstant {
     public static final int HSB_WORK_MODE_GUARD = 2;
     public static final int HSB_WORK_MODE_ALL = 0xFF;
 
-    public static final int HSB_DEV_TYPE_PLUG = 0;
-    public static final int HSB_DEV_TYPE_SENSOR = 1;
-    public static final int HSB_DEV_TYPE_REMOTE_CTL = 2;
-    public static final int HSB_DEV_TYPE_STB_CC9201 = 3;
-    public static final int HSB_DEV_TYPE_GRAY_AC = 4;
+    public static final String HSB_DEV_TYPE_PLUG = "plug";
+    public static final String HSB_DEV_TYPE_SENSOR = "sensor";
+    public static final String HSB_DEV_TYPE_REMOTE_CTL = "remote";
+    public static final String HSB_DEV_TYPE_IR = "ir";
+    public static final String HSB_DEV_TYPE_RELAY = "relay";
+    public static final String HSB_DEV_TYPE_CURTAIN = "curtain";
+
+    public static final String HSB_IR_TYPE_TV = "tv";
+    public static final String HSB_IR_TYPE_AC = "ac";
 
     public static final int HSB_TV_STATUS_CHANNEL = 0;
     public static final int HSB_TV_ACTION_PRESS_KEY = 0;

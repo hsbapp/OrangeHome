@@ -1,71 +1,43 @@
 
 package com.cg.hsb;
 
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class HsbDeviceAction {
 	private int mDevID;
 	private int mID;
-	private int mParam1;
-	private int mParam2;
-	private int mFlag;
-	private int mDelay;
+	private int mValue;
 
-	public static final int FLAG_DEFAULT = 0;
-	public static final int FLAG_SET_STATUS = 0;
-	public static final int FLAG_DO_ACTION = 1;
-	public static final int FLAG_MASK = 0x01;
+	public HsbDeviceAction() {
+		mDevID = 0;
+		mID = 0;
+		mValue = 0;
+	}
 
 	public HsbDeviceAction(int devid) {
 		mDevID = devid;
 		mID = 0;
-		mParam1 = 0;
-		mParam2 = 0;
-		mFlag = FLAG_DEFAULT;
-		mDelay = 0;
+		mValue = 0;
 	}
-/*
-	public HsbDeviceAction(int devid, int id, int param1, int param2) {
+
+	public HsbDeviceAction(int devid, int id, int value) {
 		mDevID = devid;
 		mID = id;
-		mParam1 = param1;
-		mParam2 = param2;
-		mFlag = FLAG_DEFAULT;
-	}
-*/
-	public HsbDeviceAction(int devid, int id, int param1, int param2, int flag) {
-		mDevID = devid;
-		mID = id;
-		mParam1 = param1;
-		mParam2 = param2;
-		mFlag = flag;
+		mValue = value;
 	}
 
 	public void Set(HsbDeviceAction action) {
 		mDevID = action.GetDevID();
 		mID = action.GetID();
-		mParam1 = action.GetParam1();
-		mParam2 = action.GetParam2();
-		mFlag = action.GetFlag();
+		mValue = action.GetValue();
 	}
 
-	public void Set(int id, int param1, int param2) {
+	public void Set(int id, int value, int delay) {
 		mID = id;
-		mParam1 = param1;
-		mParam2 = param2;
-	}
-
-	public void Set(int id, int param1, int param2, int flag) {
-		mID = id;
-		mParam1 = param1;
-		mParam2 = param2;
-		mFlag = flag;
-	}
-
-	public void SetFlag(int flag) {
-		mFlag = flag;
-	}
-
-	public void SetDelay(int second) {
-		mDelay = second;
+		mValue = value;
 	}
 
 	public int GetDevID() { return mDevID; }
@@ -74,19 +46,42 @@ public class HsbDeviceAction {
 		return mID;
 	}
 
-	public int GetParam1() {
-		return mParam1;
+	public int GetValue() {
+		return mValue;
 	}
 
-	public int GetParam2() {
-		return mParam2;
+	public JSONObject GetObject()
+	{
+		JSONObject obj = new JSONObject();
+		if (null == obj)
+			return null;
+
+		try {
+			obj.put("devid", mDevID);
+			obj.put("epid", mID);
+			obj.put("val", mValue);
+		} catch (JSONException ex) {
+			Log.e("hsbservice", "GetObject fail");
+			return null;
+		}
+
+		return obj;
 	}
 
-	public int GetFlag() {
-		return mFlag;
-	}
+	public boolean SetObject(JSONObject obj)
+	{
+		try {
+			if (!obj.has("devid") || !obj.has("epid") || !obj.has("val"))
+				return false;
 
-	public int GetDelay() {
-		return mDelay;
+			mDevID = obj.getInt("devid");
+			mID = obj.getInt("epid");
+			mValue = obj.getInt("val");
+		} catch (JSONException ex) {
+			Log.e("hsbservice", "SetObject fail");
+			return false;
+		}
+
+		return true;
 	}
 }

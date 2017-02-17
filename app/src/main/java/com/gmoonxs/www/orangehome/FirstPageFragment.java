@@ -23,8 +23,8 @@ import android.widget.Toast;
 
 import com.cg.hsb.HsbConstant;
 import com.cg.hsb.HsbDevice;
+import com.cg.hsb.HsbDeviceListener;
 import com.cg.hsb.SensorDevice;
-import com.cg.hsb.SensorDeviceListener;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -66,28 +66,25 @@ public class FirstPageFragment extends Fragment {
 
     private Handler handler;
 
-    private final static int CONNECTED=1;
-    private final static int PM2_5_UPDATE=2;
-    private final static int NOSENSOR=3;
-    private final static int HSBOFFLINE=4;
+    private final static int CONNECTED = 1;
+    private final static int PM2_5_UPDATE = 2;
+    private final static int NOSENSOR = 3;
+    private final static int HSBOFFLINE = 4;
 
-    private int pm_2_5=0;
-    private int wendu=0;
-    private int shidu=0;
-    private int ranqi=0;
+    private int pm_2_5 = 0;
+    private int wendu = 0;
+    private int shidu = 0;
+    private int ranqi = 0;
 
-
-    private int pm_2_51=10;
-
+    private int pm_2_51 = 10;
 
     LogsDB logsDB;
     private Cursor logsCursor;
     public LogsAdapter logsAdapter;
 
-
     ListView state_board_display_logs;
 
-    boolean hasSensor=false;
+    boolean hasSensor = false;
 
     SensorListenerForFirstPageFragment sensorListenerForFirstPageFragment;
 
@@ -116,7 +113,7 @@ public class FirstPageFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        handler=new Handler() {
+        handler = new Handler() {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case CONNECTED:
@@ -141,7 +138,7 @@ public class FirstPageFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        logsDB=OrangeHomeApplication.getOrangeHomeApplication().getLogsDB();
+        logsDB = OrangeHomeApplication.getOrangeHomeApplication().getLogsDB();
         OrangeHomeApplication.getOrangeHomeApplication().setSensorListenerForFirstPageFragment(new SensorListenerForFirstPageFragment() {
             @Override
             public void sensorOffLine() {
@@ -171,18 +168,19 @@ public class FirstPageFragment extends Fragment {
 
 
 
-        if (OrangeHomeApplication.getOrangeHomeApplication().getWeather()!=null){
+        if (OrangeHomeApplication.getOrangeHomeApplication().getWeather()!=null)
+        {
             long difference=Calendar.getInstance().getTimeInMillis()-OrangeHomeApplication.getOrangeHomeApplication().getWeather().getUpadteTime().getTimeInMillis();
             long hour=difference/(3600*1000);
             if (hour>=2){
-                weatherNow=new Weather();
+                weatherNow = new Weather();
                 queryWeatherByCityCode(cityCode);
-            }else {
+            } else {
                 weatherNow=OrangeHomeApplication.getOrangeHomeApplication().getWeather();
                 setWeatherPara(weatherNow);
             }
 
-        }else {
+        } else {
             weatherNow=new Weather();
             queryWeatherByCityCode(cityCode);
         }
@@ -317,14 +315,13 @@ public class FirstPageFragment extends Fragment {
             state_board_display_ready.setVisibility(View.VISIBLE);
             state_board_display_loading.setVisibility(View.GONE);
             if (OrangeHomeApplication.getOrangeHomeApplication().getSensorDevice()!=null){
-                SensorDevice sensorDevice=OrangeHomeApplication.getOrangeHomeApplication().getSensorDevice();
-                pm_2_5 = sensorDevice.PM25Status();
-                wendu=sensorDevice.TemperatureStatus();
-                shidu=sensorDevice.HumidityStatus();
-                ranqi=sensorDevice.GasStatus();
+                SensorDevice sensorDevice = OrangeHomeApplication.getOrangeHomeApplication().getSensorDevice();
+                pm_2_5 = sensorDevice.GetPM25();
+                wendu = sensorDevice.GetTemperature();
+                shidu = sensorDevice.GetHumidity();
+                ranqi = sensorDevice.GetGas();
                 dialUpdate();
             }
-
         }
     }
 
@@ -339,7 +336,7 @@ public class FirstPageFragment extends Fragment {
                     Message message = new Message();
                     message.what = CONNECTED;
                     handler.sendMessage(message); //告诉主线程执行任务
-                }catch (Exception e){
+                } catch (Exception e){
 
                 }
             }
@@ -347,7 +344,8 @@ public class FirstPageFragment extends Fragment {
         }).start();
     }
 
-    private void deviceReady() {
+    private void deviceReady()
+    {
         state_board_display_loading.setVisibility(View.GONE);
         state_board_display_ready.setVisibility(View.VISIBLE);
         try {
@@ -370,43 +368,25 @@ public class FirstPageFragment extends Fragment {
                             SensorDevice sensor = (SensorDevice) device;
                             OrangeHomeApplication.getOrangeHomeApplication().setSensorDevice(sensor);
                             //getPMOnline(sensor);
-                            pm_2_5 = sensor.PM25Status();
-                            wendu=sensor.TemperatureStatus();
-                            shidu=sensor.HumidityStatus();
-                            ranqi=sensor.GasStatus();
+                            pm_2_5 = sensor.GetPM25();
+                            wendu=sensor.GetTemperature();
+                            shidu=sensor.GetHumidity();
+                            ranqi=sensor.GetGas();
                             Message message = new Message();
                             message.what = PM2_5_UPDATE;
                             handler.sendMessage(message); //告诉主线程执行任务
-                            sensor.SetListener(new SensorDeviceListener() {
+                            sensor.SetListener(new HsbDeviceListener() {
                                 @Override
-                                public void onPm25StatusUpdated(int val) {
-                                    Log.d("onPm25StatusUpdated", val + "");
-                                    pm_2_5 = val;
-                                    Message message = new Message();
-                                    message.what = PM2_5_UPDATE;
-                                    handler.sendMessage(message); //告诉主线程执行任务
-                                }
-                                public void onTempStatusUpdated(int val) {
-                                    wendu=val;
+                                public void onDeviceUpdated(HsbDevice device) {
+                                    SensorDevice _sensor = (SensorDevice)device;
+                                    pm_2_5 = _sensor.GetPM25();
+                                    wendu = _sensor.GetTemperature();
+                                    shidu = _sensor.GetHumidity();
+                                    ranqi = _sensor.GetGas();
                                     Message message = new Message();
                                     message.what = PM2_5_UPDATE;
                                     handler.sendMessage(message);
                                 }
-
-                                public void onHumidityStatusUpdated(int val) {
-                                    shidu=val;
-                                    Message message = new Message();
-                                    message.what = PM2_5_UPDATE;
-                                    handler.sendMessage(message);
-                                }
-
-                                public void onGasStatusUpdated(int val) {
-                                    ranqi=val;
-                                    Message message = new Message();
-                                    message.what = PM2_5_UPDATE;
-                                    handler.sendMessage(message);
-                                }
-
                             });
                             break;
                         }
@@ -477,7 +457,7 @@ public class FirstPageFragment extends Fragment {
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         OrangeHomeApplication.getOrangeHomeApplication().setHsbOffLineListener(new HsbOffLineListener() {
             @Override
             public void hsbOffLine() {

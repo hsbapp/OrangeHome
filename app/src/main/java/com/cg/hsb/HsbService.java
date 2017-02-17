@@ -28,7 +28,6 @@ public class HsbService extends Service {
     private HsbBinder mBinder = new HsbBinder();
 
     private Protocol mProto = null;
-    Handler handler;
 
     public class HsbBinder extends Binder
     {
@@ -50,16 +49,7 @@ public class HsbService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        handler = new Handler()
-        {
-            @Override
-            public void handleMessage(Message msg)
-            {
-
-            }
-        };
-
-        mProto = new Protocol(this, handler);
+        mProto = new Protocol(this);
         new Thread(mProto).start();
     }
 

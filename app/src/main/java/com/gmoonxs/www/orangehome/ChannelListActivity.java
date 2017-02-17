@@ -18,13 +18,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.cg.hsb.CC9201;
-import com.cg.hsb.CC9201Listener;
-import com.cg.hsb.HsbConst;
 import com.cg.hsb.HsbDevice;
 import com.cg.hsb.HsbDeviceListener;
 import com.cg.hsb.HsbListener;
 import com.cg.hsb.Protocol;
+import com.cg.hsb.TVDevice;
 
 import java.util.ArrayList;
 
@@ -34,7 +32,7 @@ public class ChannelListActivity extends BaseActivity {
     private ChannelAdapter channelAdapter;
     private ImageView add_channel_button,delete_channel_button;
     int device_id;
-    CC9201 cc9201;
+    TVDevice cc9201;
     private static final int CHANNEL_GET=1;
     private Handler handler;
 
@@ -45,7 +43,7 @@ public class ChannelListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_channel_list);
         device_id=getIntent().getExtras().getInt("dev_id");
-        cc9201=(CC9201)OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(device_id);
+        cc9201=(TVDevice)OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(device_id);
         channelAdapter=new ChannelAdapter(this.getApplicationContext(),this,device_id);
         initView();
         handler=new Handler() {
@@ -135,18 +133,14 @@ public class ChannelListActivity extends BaseActivity {
     }
 
     private void refreshChannel(){
-        cc9201.SetListener(new CC9201Listener() {
+        cc9201.SetListener(new HsbDeviceListener() {
             @Override
-            public void onGetChannelResult(int errcode) {
-                if (errcode == HsbConst.HSB_E_OK) {
-                    Message message = new Message();
-                    message.what = CHANNEL_GET;
-                    handler.sendMessage(message); //告诉主线程执行任务
-                } else {
-                }
+            public void onDeviceUpdated(HsbDevice device) {
+                Message message = new Message();
+                message.what = CHANNEL_GET;
+                handler.sendMessage(message);
             }
         });
-        cc9201.GetChannel();
     }
 
     private void getChannelList(){

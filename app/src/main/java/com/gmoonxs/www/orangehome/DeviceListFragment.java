@@ -49,9 +49,9 @@ public class DeviceListFragment extends Fragment {
 
     private Handler handler;
 
-    private final static int CONNECTED=1;
-    private final static int REFRESH=2;
-    private final static int HSBOFFLINE=3;
+    private final static int CONNECTED = 1;
+    private final static int REFRESH = 2;
+    private final static int HSBOFFLINE = 3;
 
     private View view;
 
@@ -80,8 +80,8 @@ public class DeviceListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        deviceAdapter=new DeviceAdapter(this.getActivity().getApplicationContext(),this.getActivity(),this);
-        handler=new Handler() {
+        deviceAdapter = new DeviceAdapter(this.getActivity().getApplicationContext(),this.getActivity(),this);
+        handler = new Handler() {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case CONNECTED:
@@ -110,14 +110,13 @@ public class DeviceListFragment extends Fragment {
                 handler.sendMessage(message);
             }
         });
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view=inflater.inflate(R.layout.fragment_device_list, container, false);
+        view = inflater.inflate(R.layout.fragment_device_list, container, false);
         initView(view);
         return view;
     }

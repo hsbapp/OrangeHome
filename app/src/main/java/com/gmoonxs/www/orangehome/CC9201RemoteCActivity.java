@@ -18,10 +18,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cg.hsb.CC9201;
-import com.cg.hsb.CC9201Listener;
 import com.cg.hsb.HsbConstant;
 import com.cg.hsb.HsbDeviceAction;
+import com.cg.hsb.TVDevice;
 import com.gmoonxs.www.orangehome.R;
 
 public class CC9201RemoteCActivity extends BaseActivity {
@@ -32,7 +31,7 @@ public class CC9201RemoteCActivity extends BaseActivity {
     ImageView voice_remote_control;
     TextView ok_remote_control,return_remote_control,channel_remote_control;
     LinearLayout cc9201_remote_left_center;
-    CC9201 cc9201;
+    TVDevice cc9201;
     int device_id;
 
 
@@ -42,7 +41,7 @@ public class CC9201RemoteCActivity extends BaseActivity {
         setContentView(R.layout.activity_cc9201_remote_c);
         initView();
         device_id=getIntent().getExtras().getInt("dev_id");
-        cc9201=(CC9201)OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(device_id);
+        cc9201=(TVDevice)OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(device_id);
         initView();
     }
 
@@ -133,13 +132,13 @@ public class CC9201RemoteCActivity extends BaseActivity {
         cc9201_remote_channel_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cc9201.SetChannelStatus(cc9201.ChannelStatus() + 1);
+                cc9201.PressKey(HsbConstant.HSB_TV_KEY_UP);
             }
         });
         cc9201_remote_channel_sub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cc9201.SetChannelStatus(cc9201.ChannelStatus() - 1);
+                cc9201.PressKey(HsbConstant.HSB_TV_KEY_DOWN);
             }
         });
         return_remote_control.setOnClickListener(new View.OnClickListener() {
@@ -238,6 +237,7 @@ public class CC9201RemoteCActivity extends BaseActivity {
         voice_remote_control.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+/*
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
                     Toast.makeText(CC9201RemoteCActivity.this, getBaseContext().getResources().getText(R.string.start_voice_recognizer), Toast.LENGTH_LONG).show();
                     OrangeHomeApplication.getOrangeHomeApplication().getmProto().StartVoiceRecognizer();
@@ -245,14 +245,14 @@ public class CC9201RemoteCActivity extends BaseActivity {
                 else if(motionEvent.getAction() == MotionEvent.ACTION_UP){
                     OrangeHomeApplication.getOrangeHomeApplication().getmProto().StopVoiceRecognizer();
                 }
+*/
                 return false;
             }
         });
     }
 
     @Override
-    protected void onResume(){
-        cc9201.ConfigVR();
+    protected void onResume() {
         super.onResume();
     }
 }

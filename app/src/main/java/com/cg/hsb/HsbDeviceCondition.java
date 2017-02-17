@@ -1,78 +1,126 @@
 
 package com.cg.hsb;
 
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class HsbDeviceCondition {
 
-    private int mDevId;
-    private int mId;
+    private int mDevID;
+    private int mID;
     private int mVal;
-    private int mExp;
+    private String mExp;
 
-    public static final int EXP_EQUAL = 0;
-    public static final int EXP_GT = 1;
-    public static final int EXP_GE = 2;
-    public static final int EXP_LT = 3;
-    public static final int EXP_LE = 4;
-    public static final int EXP_DEFAULT = EXP_EQUAL;
+    public static final String EXP_EQUAL = "eq";
+    public static final String EXP_GT = "gt";
+    public static final String EXP_GE = "ge";
+    public static final String EXP_LT = "lt";
+    public static final String EXP_LE = "le";
+    public static final String EXP_DEFAULT = EXP_EQUAL;
+
+    public HsbDeviceCondition() {
+        mDevID = 0;
+        mID = 0;
+        mVal = 0;
+        mExp = EXP_DEFAULT;
+    }
 
     public HsbDeviceCondition(int devid) {
-        mDevId = devid;
-        mId = 0;
+        mDevID = devid;
+        mID = 0;
         mVal = 0;
         mExp = EXP_DEFAULT;
     }
 
     public HsbDeviceCondition(int devid, int id, int val) {
-        mDevId = devid;
-        mId = id;
+        mDevID = devid;
+        mID = id;
         mVal = val;
         mExp = EXP_DEFAULT;
     }
 
-    public HsbDeviceCondition(int devid, int id, int val, int exp) {
-        mDevId = devid;
-        mId = id;
+    public HsbDeviceCondition(int devid, int id, int val, String exp) {
+        mDevID = devid;
+        mID = id;
         mVal = val;
         mExp = exp;
     }
 
     public void Set(HsbDeviceCondition condition) {
-        mDevId = condition.GetDevID();
-        mId = condition.GetID();
+        mDevID = condition.GetDevID();
+        mID = condition.GetID();
         mVal = condition.GetVal();
         mExp = condition.GetExp();
     }
 
     public void Set(int id, int val) {
-        mId = id;
+        mID = id;
         mVal = val;
     }
 
-    public void Set(int id, int val, int exp) {
-        mId = id;
+    public void Set(int id, int val, String exp) {
+        mID = id;
         mVal = val;
         mExp = exp;
     }
 
-    public void SetExp(int exp) {
+    public void SetExp(String exp) {
         mExp = exp;
     }
 
     public int GetDevID() {
-        return mDevId;
+        return mDevID;
     }
 
     public int GetID() {
-        return mId;
+        return mID;
     }
 
     public int GetVal() {
         return mVal;
     }
 
-    public int GetExp() {
+    public String GetExp() {
         return mExp;
     }
 
+    public JSONObject GetObject()
+    {
+        JSONObject obj = new JSONObject();
+        if (null == obj)
+            return null;
+
+        try {
+            obj.put("devid", mDevID);
+            obj.put("epid", mID);
+            obj.put("val", mVal);
+            obj.put("expr", mVal);
+        } catch (JSONException ex) {
+            Log.e("hsbservice", "GetObject fail");
+            return null;
+        }
+
+        return obj;
+    }
+
+    public boolean SetObject(JSONObject obj)
+    {
+        try {
+            if (!obj.has("devid") || !obj.has("epid") || !obj.has("val") || !obj.has("expr"))
+                return false;
+
+            mDevID = obj.getInt("devid");
+            mID = obj.getInt("epid");
+            mVal = obj.getInt("val");
+            mExp = obj.getString("expr");
+        } catch (JSONException ex) {
+            Log.e("hsbservice", "SetObject fail");
+            return false;
+        }
+
+        return true;
+    }
 };
 

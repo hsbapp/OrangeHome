@@ -1,80 +1,117 @@
 
 package com.cg.hsb;
 
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class HsbDeviceTimer {
-	public int mWorkMode;
-	public int mYear; /* Year - 1900 */
-	public byte mMon; /* 0 - 11 */
-	public byte mDay; /* 1 - 31 */
-	public byte mHou; /* 0 - 23 */
-	public byte mMin; /* 0 - 59 */
-	public byte mSec; /* 0 - 59 */
-	public int mWeekday; /* 0 - 6, 0: Sunday */
+	public int mID;
+	public int mYear;
+	public int mMon;
+	public int mDay;
+	public int mHou;
+	public int mMin;
+	public int mSec;
+	public String mType;
 	public HsbDeviceAction mAction;
-	public boolean mActive;
-	public int mDevId;
 
-	public static final int WEEKDAY_ONE_SHOT = (1 << 7);
-	public static final int WEEKDAY_EVERY_DAY = 0x7F;
-	public static final int WEEKDAY_SUNDAY = (1 << 0);
-	public static final int WEEKDAY_MONDAY = (1 << 1);
-	public static final int WEEKDAY_TUESDAY = (1 << 2);
-	public static final int WEEKDAY_WEDNESDAY = (1 << 3);
-	public static final int WEEKDAY_THURSDAY = (1 << 4);
-	public static final int WEEKDAY_FRIDAY = (1 << 5);
-	public static final int WEEKDAY_SATURDAY = (1 << 6);
-	public static final int WEEKDAY_DEFAULT = WEEKDAY_EVERY_DAY;
+	public static final String TYPE_ONESHOT = "oneshot";
+	public static final String TYPE_DAILY = "daily";
 
-	public HsbDeviceTimer(int devid) {
-		mDevId = devid;
-		mWorkMode = HsbConstant.HSB_WORK_MODE_DEFAULT;
+	public HsbDeviceTimer() {
+		mID = 0;
 		mYear = 0;
 		mMon = 0;
 		mDay = 0;
 		mHou = 0;
 		mMin = 0;
 		mSec = 0;
-		mWeekday = WEEKDAY_DEFAULT;
-		mAction  = new HsbDeviceAction(devid);
-		mActive = true;
+		mAction  = null;
+		mType = TYPE_ONESHOT;
 	}
 
 	public void SetDate(int year, int mon, int day) {
-		if (year < 116 || mon < 0 || mon > 11 || day < 1 || day > 31)
-			return;
-
 		mYear = year;
-		mMon = (byte)mon;
-		mDay = (byte)day;
+		mMon = mon;
+		mDay = day;
 	}
 
 	public void SetTime(int hou, int min, int sec)
 	{
-		if (hou < 0 || hou > 23 || min < 0 || min > 59 || sec < 0 || sec > 59)
-			return;
-
-		mHou = (byte)hou;
-		mMin = (byte)min;
-		mSec = (byte)sec;
-	}
-
-	public void SetWorkMode(int WorkMode)
-	{
-		mWorkMode = WorkMode;
-	}
-
-	public void SetWeekDay(int WeekDay)
-	{
-		mWeekday = WeekDay & 0xFF;
+		mHou = hou;
+		mMin = min;
+		mSec = sec;
 	}
 
 	public void SetAction(HsbDeviceAction action)
 	{
-		mAction.Set(action);
+		mAction = action;
 	}
 
-	public void SetActive(boolean active) {
-		mActive = active;
+	public void SetType(String type)
+	{
+		mType = type;
+	}
+
+	public int GetID()
+	{
+		return mID;
+	}
+
+	private String GetDate()
+	{
+		return String.format("%d-%02d-%02d", mYear, mMon, mDay);
+	}
+
+	private String GetTime()
+	{
+		return String.format("%d:%d:%d", mHou, mMin, mSec);
+	}
+
+	public JSONObject GetObject()
+	{
+		if (null == mAction)
+			return null;
+
+		JSONObject obj = new JSONObject();
+		if (null == obj)
+			return null;
+
+		try {
+			obj.put("tmid", mID);
+			obj.put("type", mType);
+			obj.put("time", GetTime());
+			if (mType == TYPE_ONESHOT) {
+				obj.put("date", GetDate());
+			}
+
+			obj.put("action", mAction.GetObject());
+		} catch (JSONException ex) {
+			Log.e("hsbservice", "GetObject fail");
+			return null;
+		}
+
+		return obj;
+	}
+
+	public boolean SetObject(JSONObject obj)
+	{
+		try {
+			if (!obj.has("tmid") || !obj.has("type") || !obj.has("time") || !obj.has("action"))
+				return false;
+
+			mID = obj.getInt("tmid");
+			mType = obj.getString("type");
+
+			// TODO
+		} catch (JSONException ex) {
+			Log.e("hsbservice", "SetObject fail");
+			return false;
+		}
+
+		return true;
 	}
 }
 

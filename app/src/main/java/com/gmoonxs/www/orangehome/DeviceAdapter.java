@@ -19,9 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.cg.hsb.CC9201;
-import com.cg.hsb.GrayAirConditioner;
-import com.cg.hsb.HsbConst;
+import com.cg.hsb.ACDevice;
 import com.cg.hsb.HsbConstant;
 import com.cg.hsb.HsbDevice;
 import com.cg.hsb.HsbDeviceAction;
@@ -32,6 +30,8 @@ import com.cg.hsb.HsbSceneListener;
 import com.cg.hsb.PlugDevice;
 import com.cg.hsb.Protocol;
 import com.cg.hsb.SensorDevice;
+import com.cg.hsb.TVDevice;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,9 +47,9 @@ public class DeviceAdapter extends BaseAdapter {
     private DeviceListFragment deviceListFragment;
     private Protocol protocol;
     private Handler handler;
-    private final static int SCENES_GET=1;
-    private final static int DEL_SCENE=2;
-    private int deleteDevicePosition=-1;
+    private final static int SCENES_GET = 1;
+    private final static int DEL_SCENE = 2;
+    private int deleteDevicePosition = -1;
 
     public DeviceAdapter(Context context,Context activityContext,DeviceListFragment deviceListFragment){
         mContext=activityContext;
@@ -69,6 +69,7 @@ public class DeviceAdapter extends BaseAdapter {
             }
         };
     }
+
     public void addData(List<HsbDevice> infos){
         if(null == infos){
             return;
@@ -199,7 +200,7 @@ public class DeviceAdapter extends BaseAdapter {
             case HsbConstant.HSB_DEV_TYPE_PLUG:{
 
                 final PlugDevice plug = (PlugDevice) hsbDevice;
-                if( plug.PowerStatus()){
+                if( plug.GetPowerStatus()){
                     deviceListViewHolder.device_list_item_device_status.setText("开");
                     deviceListViewHolder.device_list_item_switch_power.setChecked(true);
                 }
@@ -221,7 +222,7 @@ public class DeviceAdapter extends BaseAdapter {
                     @Override
                     public void onClick(View view) {
                         //如果状态为开
-                        if (plug.PowerStatus()){
+                        if (plug.GetPowerStatus()){
                             plug.SetPowerStatus(false);
                         }
                         else {
@@ -235,84 +236,79 @@ public class DeviceAdapter extends BaseAdapter {
             }
             case HsbConstant.HSB_DEV_TYPE_SENSOR: {
                 final SensorDevice sensor = (SensorDevice) hsbDevice;
-                deviceListViewHolder.device_list_item_device_status.setText("pm2.5:" + sensor.PM25Status());
+                deviceListViewHolder.device_list_item_device_status.setText("pm2.5:" + sensor.GetPM25());
                 deviceListViewHolder.device_list_item_timer.setVisibility(View.INVISIBLE);
                 deviceListViewHolder.device_list_item_remote_control.setVisibility(View.INVISIBLE);
                 deviceListViewHolder.device_list_item_switch_power.setVisibility(View.INVISIBLE);
                 break;
             }
-            case HsbConstant.HSB_DEV_TYPE_STB_CC9201: {
-                final CC9201 stb = (CC9201) hsbDevice;
-                // get tv channel id
-                deviceListViewHolder.device_list_item_timer.setVisibility(View.INVISIBLE);
-                deviceListViewHolder.device_list_item_switch_power.setVisibility(View.INVISIBLE);
-                deviceListViewHolder.device_list_item_remote_control.setVisibility(View.VISIBLE);
-                deviceListViewHolder.device_list_item_device_status.setText("频道:"+stb.ChannelStatus()+"");
-                deviceListViewHolder.device_list_item_remote_control.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(mContext, CC9201RemoteCActivity.class);
-                        intent.putExtra("dev_id", stb.GetDevId());
-                        mContext.startActivity(intent);
+            case HsbConstant.HSB_DEV_TYPE_IR: {
+                String irtype = hsbDevice.GetIrType();
+                if (irtype == HsbConstant.HSB_IR_TYPE_TV) {
+                    final TVDevice stb = (TVDevice) hsbDevice;
+                    // get tv channel id
+                    deviceListViewHolder.device_list_item_timer.setVisibility(View.INVISIBLE);
+                    deviceListViewHolder.device_list_item_switch_power.setVisibility(View.INVISIBLE);
+                    deviceListViewHolder.device_list_item_remote_control.setVisibility(View.VISIBLE);
+                    // TODO
+                    //deviceListViewHolder.device_list_item_device_status.setText("频道:" + stb.GetChannelStatus() + "");
+                    deviceListViewHolder.device_list_item_remote_control.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(mContext, CC9201RemoteCActivity.class);
+                            intent.putExtra("dev_id", stb.GetDevId());
+                            mContext.startActivity(intent);
+                        }
+                    });
+                    deviceListViewHolder.device_list_item_timer.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(mContext, DeviceTimerActivity.class);
+                            intent.putExtra("dev_id", stb.GetDevId());
+                            mContext.startActivity(intent);
+                        }
+                    });
+
+                } else if (irtype == HsbConstant.HSB_IR_TYPE_AC) {
+                    final ACDevice ac = (ACDevice) hsbDevice;
+                    deviceListViewHolder.device_list_item_timer.setVisibility(View.VISIBLE);
+                    deviceListViewHolder.device_list_item_switch_power.setVisibility(View.VISIBLE);
+                    deviceListViewHolder.device_list_item_remote_control.setVisibility(View.VISIBLE);
+                    deviceListViewHolder.device_list_item_device_status.setText(ac.GetWorkMode() + ":" + ac.GetTemperature() + "度");
+                    if (ac.GetPower()) {
+                        deviceListViewHolder.device_list_item_switch_power.setChecked(true);
+                    } else {
+                        deviceListViewHolder.device_list_item_switch_power.setChecked(false);
                     }
-                });
-                deviceListViewHolder.device_list_item_timer.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(mContext, DeviceTimerActivity.class);
-                        intent.putExtra("dev_id", stb.GetDevId());
-                        mContext.startActivity(intent);
-                    }
-                });
+
+                    deviceListViewHolder.device_list_item_switch_power.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ac.SetPower(ac.GetPower() ? false : true);
+                            DeviceAdapter.this.notifyDataSetChanged();
+                        }
+                    });
+
+                    deviceListViewHolder.device_list_item_remote_control.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(mContext, AirCRemoteCActivity.class);
+                            intent.putExtra("dev_id", ac.GetDevId());
+                            mContext.startActivity(intent);
+                        }
+                    });
+
+                    deviceListViewHolder.device_list_item_timer.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(mContext, DeviceTimerActivity.class);
+                            intent.putExtra("dev_id", ac.GetDevId());
+                            mContext.startActivity(intent);
+                        }
+                    });
+                }
 
                 break;
-            }
-            case HsbConstant.HSB_DEV_TYPE_GRAY_AC: {
-
-
-                final GrayAirConditioner ac = (GrayAirConditioner) hsbDevice;
-                deviceListViewHolder.device_list_item_timer.setVisibility(View.VISIBLE);
-                deviceListViewHolder.device_list_item_switch_power.setVisibility(View.VISIBLE);
-                deviceListViewHolder.device_list_item_remote_control.setVisibility(View.VISIBLE);
-                if (ac.WorkMode()>=0&&ac.WorkMode()<Constant.AC_WORK_MODE.length){
-                    deviceListViewHolder.device_list_item_device_status.setText(Constant.AC_WORK_MODE[ac.WorkMode()]+":"+ac.Temperature()+"度");
-                }
-                if(ac.Power()==1){
-                    deviceListViewHolder.device_list_item_switch_power.setChecked(true);
-                }
-                else if(ac.Power()==0){
-                    deviceListViewHolder.device_list_item_switch_power.setChecked(false);
-                }
-
-                deviceListViewHolder.device_list_item_switch_power.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        ac.SetPower(ac.Power() == 0 ? 1 : 0);
-                        DeviceAdapter.this.notifyDataSetChanged();
-                    }
-                });
-
-                deviceListViewHolder.device_list_item_remote_control.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(mContext, AirCRemoteCActivity.class);
-                        intent.putExtra("dev_id", ac.GetDevId());
-                        mContext.startActivity(intent);
-                    }
-                });
-
-                deviceListViewHolder.device_list_item_timer.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(mContext, DeviceTimerActivity.class);
-                        intent.putExtra("dev_id", ac.GetDevId());
-                        mContext.startActivity(intent);
-                    }
-                });
-
-                break;
-
-
             }
             case HsbConstant.HSB_DEV_TYPE_REMOTE_CTL:
                 // nothing to do
@@ -358,7 +354,7 @@ public class DeviceAdapter extends BaseAdapter {
         protocol.SetSceneListener(new HsbSceneListener() {
             @Override
             public void onGetSceneResult(int errcode) {
-                if (errcode == HsbConst.HSB_E_OK) {
+                if (errcode == HsbConstant.HSB_E_OK) {
                     Message message = new Message();
                     message.what = SCENES_GET;
                     Bundle bundle = new Bundle();
@@ -371,7 +367,7 @@ public class DeviceAdapter extends BaseAdapter {
 
             @Override
             public void onDelSceneResult(int errcode) {
-                if (errcode == HsbConst.HSB_E_OK) {
+                if (errcode == HsbConstant.HSB_E_OK) {
                     Message message = new Message();
                     message.what = DEL_SCENE;
                     handler.sendMessage(message); //告诉主线程执行任务

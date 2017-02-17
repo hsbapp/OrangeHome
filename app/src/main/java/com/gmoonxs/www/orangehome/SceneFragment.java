@@ -24,7 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 
-import com.cg.hsb.HsbConst;
+import com.cg.hsb.HsbConstant;
 import com.cg.hsb.HsbListener;
 import com.cg.hsb.HsbScene;
 import com.cg.hsb.HsbSceneListener;
@@ -268,7 +268,7 @@ public class SceneFragment extends Fragment {
         protocol.SetSceneListener(new HsbSceneListener() {
             @Override
             public void onGetSceneResult(int errcode) {
-                if (errcode == HsbConst.HSB_E_OK) {
+                if (errcode == HsbConstant.HSB_E_OK) {
                     Message message = new Message();
                     message.what = SCENES_GET;
                     handler.sendMessage(message); //告诉主线程执行任务

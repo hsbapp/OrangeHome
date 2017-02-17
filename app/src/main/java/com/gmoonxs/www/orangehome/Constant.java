@@ -2,7 +2,7 @@ package com.gmoonxs.www.orangehome;
 
 import android.os.Environment;
 
-import com.cg.hsb.HsbConst;
+import com.cg.hsb.HsbConstant;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class Constant {
 
     public static final String[] AC_WIND_SPEED={"自动","低速","中速","高速"};
 
-    public static final int[] DEVICE_TYPE_ID={HsbConst.HSB_DEV_TYPE_STB_CC9201,HsbConst.HSB_DEV_TYPE_GRAY_AC};
+    public static final String[] IR_TYPE_ALL = {HsbConstant.HSB_IR_TYPE_TV, HsbConstant.HSB_IR_TYPE_AC};
 
     public static final String[] DEVICE_TYPE_ALL={"插座","感应器","遥控器","CC9201","空调"};
 

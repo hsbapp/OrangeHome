@@ -11,4 +11,6 @@ public class HsbSceneListener {
     public void onDelSceneResult(int errcode) {}
     public void onEnterSceneResult(int errcode) {}
     public void onGetSceneResult(int errcode) {}
+
+    public void onSceneUpdated() {}
 }

@@ -38,9 +38,9 @@ public class OrangeHomeApplication extends Application {
     private static OrangeHomeApplication orangeHomeApplication;
     private static Context context;
     private ArrayList<HsbDevice> devList;
-    private Protocol mProto=null;
+    private Protocol mProto = null;
     private ServiceConnection conn;
-    private HsbService mService=null;
+    private HsbService mService = null;
     private boolean isReady;
     private HsbListener hsbListener;
 
@@ -53,7 +53,7 @@ public class OrangeHomeApplication extends Application {
     private SensorDevice sensorDevice;
     private SensorListener sensorListener;
     private SensorListenerForFirstPageFragment sensorListenerForFirstPageFragment;
-    private boolean isFristPageMent=false;
+    private boolean isFristPageMent = false;
     private HsbOffLineListener hsbOffLineListener;
     private SoundPool soundPool;// 声明一个SoundPool,SoundPool最大只能申请1M的内存空间
     private int musicId;// 定义一个整型用load（）；来设置suondID
@@ -61,38 +61,46 @@ public class OrangeHomeApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        orangeHomeApplication=this;
+        orangeHomeApplication = this;
         soundPool = new SoundPool(10, AudioManager.STREAM_SYSTEM, 5);// 第一个参数为同时播放数据流的最大个数，第二数据流类型，第三为声音质量
         soundPool.load(this, R.raw.welcome, 1); // 把你的声音素材放到res/raw里，第2个参数即为资源文件，第3个为音乐的优先级
 
-        isReady=false;
+        isReady = false;
         initLogDB();
+
         setServiceConnection();
+
         Intent intent = new Intent();
         intent.setAction("com.cg.hsb.service.HSB_SERVICE");
         intent.setPackage(getPackageName());
         bindService(intent, conn, Service.BIND_AUTO_CREATE);
-        isSceneEdit=false;
+
+        isSceneEdit = false;
         playSound();
     }
 
-    public static OrangeHomeApplication getOrangeHomeApplication(){
+    public static OrangeHomeApplication getOrangeHomeApplication()
+    {
         return orangeHomeApplication;
     }
 
-    public ArrayList<HsbDevice> getDevList() {
+    public ArrayList<HsbDevice> getDevList()
+    {
         return devList;
     }
 
-    public void setDevList(ArrayList<HsbDevice> devList) {
+    public void setDevList(ArrayList<HsbDevice> devList)
+    {
         this.devList = devList;
     }
 
-    public boolean isReady() {
+    public boolean isReady()
+    {
         return isReady;
     }
 
-    public void setIsReady(boolean isReady) {
+    public void setIsReady(boolean isReady)
+    {
         this.isReady = isReady;
     }
 
@@ -106,7 +114,7 @@ public class OrangeHomeApplication extends Application {
                 mProto.SetListener(new HsbListener() {
                     @Override
                     public void onDeviceOnline(HsbDevice device) {
-                        int dev_type = device.GetDevType();
+                        String dev_type = device.GetDevType();
                         Log.d("hsbservice", "onDeviceOnline: " + dev_type);
                         notifyOnline(device);
                     }
@@ -122,38 +130,47 @@ public class OrangeHomeApplication extends Application {
                     public void onHsbOnline(boolean online) {
                         OrangeHomeApplication.this.isReady = online;
                         if (online == false) {
-                            OrangeHomeApplication.this.isReady = false;
                             if (hsbOffLineListener != null) {
                                 hsbOffLineListener.hsbOffLine();
                             }
                             notifyHsbOffline();
                         }
                     }
-                });
-                isReady=true;
-                GetDevicesPrty();
 
+                    @Override
+                    public void onDeviceUpdated(HsbDevice device)
+                    {
+
+                    }
+                });
+
+                isReady = true;
+                GetDevicesPrty();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 conn = null;
-                isReady=false;
-                Intent intent = new Intent(OrangeHomeApplication.this,IndexActivity.class);
+                isReady = false;
+                Intent intent = new Intent(OrangeHomeApplication.this, IndexActivity.class);
                 startActivity(intent);
             }
         };
     }
 
 
-    public HsbScene getMiddleHsbScene() {
-        if (middleHsbScene==null){
-            middleHsbScene=new HsbScene("自定义模式");
+    public HsbScene getMiddleHsbScene()
+    {
+        if (middleHsbScene == null)
+        {
+            middleHsbScene = new HsbScene("自定义模式");
         }
+
         return middleHsbScene;
     }
 
-    public void setMiddleHsbScene(HsbScene middleHsbScene) {
+    public void setMiddleHsbScene(HsbScene middleHsbScene)
+    {
         this.middleHsbScene = middleHsbScene;
     }
 
@@ -228,51 +245,40 @@ public class OrangeHomeApplication extends Application {
         }*/
     }
 
-    public Protocol getmProto() {
+    public Protocol getmProto()
+    {
         return mProto;
     }
 
-    public void setmProto(Protocol mProto) {
+    public void setmProto(Protocol mProto)
+    {
         this.mProto = mProto;
     }
 
+    public void notifyOnline(HsbDevice device)
+    {
+        notifyOnlineExecute(device.GetName(), device.GetLocation());
 
-    public void notifyOnline(HsbDevice device){
-        switch (device.GetDevType()){
-            case HsbConstant.HSB_DEV_TYPE_PLUG:
-                notifyOnlineExecute(device.GetName(), device.GetLocation());
-                break;
-            case HsbConstant.HSB_DEV_TYPE_STB_CC9201:
-                notifyOnlineExecute(device.GetName(), device.GetLocation());
-                break;
-            case HsbConstant.HSB_DEV_TYPE_REMOTE_CTL:
-                notifyOnlineExecute(device.GetName(), device.GetLocation());
-                break;
-            case HsbConstant.HSB_DEV_TYPE_SENSOR:
-                notifyOnlineExecute(device.GetName(),device.GetLocation());
+        String devtype = device.GetDevType();
+        if (devtype == HsbConstant.HSB_DEV_TYPE_SENSOR)
+        {
                 /*if (isFristPageMent){
                     Intent intent =new Intent(OrangeHomeApplication.this,IndexActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }*/
-                if(sensorListenerForFirstPageFragment!=null){
-                    sensorListenerForFirstPageFragment.sensorOnLine();
-                }
+            if (sensorListenerForFirstPageFragment != null) {
+                sensorListenerForFirstPageFragment.sensorOnLine();
+            }
 
-
-                if(sensorListener!=null){
-                    sensorListener.sensorOnLine();
-                }
-                break;
-            case HsbConstant.HSB_DEV_TYPE_GRAY_AC:
-                notifyOnlineExecute(device.GetName(), device.GetLocation());
-                break;
+            if (sensorListener != null) {
+                sensorListener.sensorOnLine();
+            }
         }
-
-
     }
 
-    private void notifyOnlineExecute(String devName,String devLocation){
+    private void notifyOnlineExecute(String devName, String devLocation)
+    {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setContentTitle("设备上线提醒")
@@ -291,44 +297,32 @@ public class OrangeHomeApplication extends Application {
         mNotificationManager.notify(0, mBuilder.build());
     }
 
-    public void notifyOffline(HsbDevice device){
-        switch (device.GetDevType()){
-            case HsbConstant.HSB_DEV_TYPE_PLUG:
-                notifyOfflineExecute(device.GetName(), device.GetLocation());
-                break;
-            case HsbConstant.HSB_DEV_TYPE_STB_CC9201:
-                notifyOfflineExecute(device.GetName(), device.GetLocation());
-                break;
-            case HsbConstant.HSB_DEV_TYPE_REMOTE_CTL:
-                notifyOfflineExecute(device.GetName(), device.GetLocation());
-                break;
-            case HsbConstant.HSB_DEV_TYPE_SENSOR:
-                notifyOfflineExecute(device.GetName(), device.GetLocation());
-                sensorDevice=null;
+    public void notifyOffline(HsbDevice device)
+    {
+        notifyOfflineExecute(device.GetName(), device.GetLocation());
 
-                if(sensorListenerForFirstPageFragment!=null){
-                    sensorListenerForFirstPageFragment.sensorOffLine();
-                }
+        String devtype = device.GetDevType();
+        if (devtype == HsbConstant.HSB_DEV_TYPE_SENSOR)
+        {
+            sensorDevice = null;
+
+            if (sensorListenerForFirstPageFragment != null) {
+                sensorListenerForFirstPageFragment.sensorOffLine();
+            }
 
                 /*if (isFristPageMent){
                     Intent intent =new Intent(OrangeHomeApplication.this,IndexActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }*/
-                if(sensorListener!=null){
-                    sensorListener.sensorOffLine();
-                }
-                break;
-            case HsbConstant.HSB_DEV_TYPE_GRAY_AC:
-                notifyOfflineExecute(device.GetName(),device.GetLocation());
-                break;
+            if (sensorListener != null) {
+                sensorListener.sensorOffLine();
+            }
         }
-
-
     }
 
-
-    private void notifyOfflineExecute(String devName,String devLocation){
+    private void notifyOfflineExecute(String devName, String devLocation)
+    {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setContentTitle("设备下线提醒")
@@ -347,8 +341,8 @@ public class OrangeHomeApplication extends Application {
         mNotificationManager.notify(0, mBuilder.build());
     }
 
-
-    public void notifyHsbOffline(){
+    public void notifyHsbOffline()
+    {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setContentTitle("HSB断线提醒")
@@ -370,10 +364,11 @@ public class OrangeHomeApplication extends Application {
         startActivity(intent1);
     }
 
-    private void initLogDB(){
+    private void initLogDB()
+    {
         logsDB = new LogsDB(this);
         //logsDB.deleteDatabase(this);
-       logsCursor=logsDB.select();
+        logsCursor = logsDB.select();
     }
 
     public LogsDB getLogsDB() {
@@ -392,9 +387,10 @@ public class OrangeHomeApplication extends Application {
         this.weather = weather;
     }
 
-    public void addToLogsDB(String operation){
+    public void addToLogsDB(String operation)
+    {
         OrangeHomeApplication.getOrangeHomeApplication().getLogsDB().insert(operation);
-        Cursor mCursor=OrangeHomeApplication.getOrangeHomeApplication().getLogsCursor();
+        Cursor mCursor = OrangeHomeApplication.getOrangeHomeApplication().getLogsCursor();
         mCursor.requery();
     }
 
@@ -421,7 +417,6 @@ public class OrangeHomeApplication extends Application {
     public void setIsFristPageMent(boolean isFristPageMent) {
         this.isFristPageMent = isFristPageMent;
     }
-
 
     public SensorListener getSensorListener() {
         return sensorListener;

@@ -20,7 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cg.hsb.HsbConst;
+import com.cg.hsb.HsbConstant;
 import com.cg.hsb.HsbDevice;
 import com.cg.hsb.HsbListener;
 import com.cg.hsb.HsbScene;
@@ -114,7 +114,7 @@ public class SceneActivity extends BaseActivity {
                     OrangeHomeApplication.getOrangeHomeApplication().getmProto().SetSceneListener(new HsbSceneListener() {
                         @Override
                         public void onEnterSceneResult(int errcode) {
-                            if (errcode == HsbConst.HSB_E_OK) {
+                            if (errcode == HsbConstant.HSB_E_OK) {
                                 Message message = new Message();
                                 message.what = ENTER_SCENE;
                                 handler.sendMessage(message); //告诉主线程执行任务
@@ -138,7 +138,7 @@ public class SceneActivity extends BaseActivity {
                             OrangeHomeApplication.getOrangeHomeApplication().getmProto().SetSceneListener(new HsbSceneListener() {
                                 @Override
                                 public void onDelSceneResult(int errcode) {
-                                    if (errcode == HsbConst.HSB_E_OK) {
+                                    if (errcode == HsbConstant.HSB_E_OK) {
                                         Message message = new Message();
                                         message.what = DEL_SCENE;
                                         handler.sendMessage(message); //告诉主线程执行任务
@@ -187,7 +187,7 @@ public class SceneActivity extends BaseActivity {
                     OrangeHomeApplication.getOrangeHomeApplication().getmProto().SetSceneListener(new HsbSceneListener() {
                         @Override
                         public void onSetSceneResult(int errcode) {
-                            if (errcode == HsbConst.HSB_E_OK) {
+                            if (errcode == HsbConstant.HSB_E_OK) {
                                 Message message = new Message();
                                 message.what = SET_SCENE;
                                 handler.sendMessage(message); //告诉主线程执行任务

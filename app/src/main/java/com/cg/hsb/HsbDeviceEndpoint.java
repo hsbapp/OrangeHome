@@ -22,8 +22,8 @@ public class HsbDeviceEndpoint {
 	private int mMax;
 	private String mUnit;
 
-	static String VAL_TYPE_INT = "int";
-	static String VAL_TYPE_LIST = "list";
+	public static String VAL_TYPE_INT = "int";
+	public static String VAL_TYPE_LIST = "list";
 
 	public HsbDeviceEndpoint(int id, int val)
 	{
@@ -296,5 +296,9 @@ public class HsbDeviceEndpoint {
 
 		public int GetVal() { return mVal; }
 		public String GetDesc() { return mDesc; }
+	}
+
+	public String getmValType() {
+		return mValType;
 	}
 }

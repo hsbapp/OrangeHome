@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.cg.hsb.HsbConstant;
 import com.cg.hsb.HsbDevice;
 import com.cg.hsb.HsbDeviceCondition;
-import com.cg.hsb.HsbDeviceState;
+import com.cg.hsb.HsbDeviceEndpoint;
 import com.cg.hsb.HsbScene;
 import com.cg.hsb.HsbSceneAction;
 
@@ -108,17 +108,17 @@ public class SceneOperationAdapter  extends BaseAdapter {
 
         //类型图片
         if (hsbSceneAction!=null) {
-            HsbDevice actionDevice=OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(hsbSceneAction.GetAction(0).GetDevID());
+            HsbDevice actionDevice=OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(hsbSceneAction.GetActionList().get(0).GetDevID());
             switch (actionDevice.GetDevType()){
                 case HsbConstant.HSB_DEV_TYPE_PLUG:{
                     sceneOperationListViewHolder.scene_action_item_device_type.setImageDrawable(mContext.getResources().getDrawable(R.drawable.scene_action_item_plug));
                     break;
                 }
-                case HsbConstant.HSB_DEV_TYPE_STB_CC9201: {
+                case HsbConstant.HSB_IR_TYPE_TV: {
                     sceneOperationListViewHolder.scene_action_item_device_type.setImageDrawable(mContext.getResources().getDrawable(R.drawable.scene_action_item_tv));
                     break;
                 }
-                case HsbConstant.HSB_DEV_TYPE_GRAY_AC: {
+                case HsbConstant.HSB_IR_TYPE_AC: {
                     sceneOperationListViewHolder.scene_action_item_device_type.setImageDrawable(mContext.getResources().getDrawable(R.drawable.scene_action_item_airconditioner));
                     break;
                 }
@@ -135,14 +135,24 @@ public class SceneOperationAdapter  extends BaseAdapter {
                 HsbDevice hsbDevice=OrangeHomeApplication.getOrangeHomeApplication().getmProto().FindDevice(hsbDeviceCondition.GetDevID());
                 sceneOperationListViewHolder.scene_action_item_condition_name.setText(hsbDevice.GetName());
                 String condition="";
-                if (hsbDevice.GetState(hsbDeviceCondition.GetID()).GetType()== HsbDeviceState.TYPE_LIST){
-                    condition=hsbDevice.GetState(hsbDeviceCondition.GetID()).GetName();;
-                    condition+=hsbDevice.GetState(hsbDeviceCondition.GetID()).GetValDesc(hsbDeviceCondition.GetVal());
+                if (hsbDevice.FindEndpoint(hsbDeviceCondition.GetID()).getmValType().equals(HsbDeviceEndpoint.VAL_TYPE_LIST)){
+                    condition=hsbDevice.FindEndpoint(hsbDeviceCondition.GetID()).GetName();;
+                    condition+=hsbDevice.FindEndpoint(hsbDeviceCondition.GetID()).GetValDesc(hsbDeviceCondition.GetVal());
 
-                }else if (hsbDevice.GetState(hsbDeviceCondition.GetID()).GetType()== HsbDeviceState.TYPE_INT){
-                    condition=hsbDevice.GetState(hsbDeviceCondition.GetID()).GetName();
-                    condition+=Constant.DEVICE_CONDITION_EXP[hsbDeviceCondition.GetExp()];
-                    condition+=hsbDevice.GetState(hsbDeviceCondition.GetID()).GetValDesc(hsbDeviceCondition.GetVal());
+                }else if (hsbDevice.FindEndpoint(hsbDeviceCondition.GetID()).getmValType().equals( HsbDeviceEndpoint.VAL_TYPE_INT)){
+                    condition=hsbDevice.FindEndpoint(hsbDeviceCondition.GetID()).GetName();
+                    if(hsbDeviceCondition.GetExp().equals(HsbDeviceCondition.EXP_EQUAL)){
+                        condition+=Constant.DEVICE_CONDITION_EXP[0];
+                    }else if(hsbDeviceCondition.GetExp().equals(HsbDeviceCondition.EXP_GT)){
+                        condition+=Constant.DEVICE_CONDITION_EXP[1];
+                    }else if(hsbDeviceCondition.GetExp().equals(HsbDeviceCondition.EXP_GE)){
+                        condition+=Constant.DEVICE_CONDITION_EXP[2];
+                    }else if(hsbDeviceCondition.GetExp().equals(HsbDeviceCondition.EXP_LT)){
+                        condition+=Constant.DEVICE_CONDITION_EXP[3];
+                    }else if(hsbDeviceCondition.GetExp().equals(HsbDeviceCondition.EXP_LE)){
+                        condition+=Constant.DEVICE_CONDITION_EXP[4];
+                    }
+                    condition += hsbDevice.FindEndpoint(hsbDeviceCondition.GetID()).GetValDesc(hsbDeviceCondition.GetVal());
 
                 }
                 sceneOperationListViewHolder.scene_action_item_condition_condition.setText(condition);

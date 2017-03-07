@@ -6,6 +6,11 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 public class HsbDeviceTimer {
 	public int mID;
 	public int mYear;
@@ -101,14 +106,32 @@ public class HsbDeviceTimer {
 		try {
 			if (!obj.has("tmid") || !obj.has("type") || !obj.has("time") || !obj.has("action"))
 				return false;
-
 			mID = obj.getInt("tmid");
 			mType = obj.getString("type");
 
+			SimpleDateFormat sdf1= new SimpleDateFormat("HH:mm:ss");
+			Date date1 =sdf1.parse(obj.getString("time"));
+			Calendar calendarTime = Calendar.getInstance();
+			calendarTime.setTime(date1);
+			mHou=calendarTime.get(Calendar.HOUR_OF_DAY);
+			mMin=calendarTime.get(Calendar.MINUTE);
+			mSec=calendarTime.get(Calendar.SECOND);
+
+			if(obj.has("date")){
+				SimpleDateFormat sdf2= new SimpleDateFormat("yyyy-MM-dd");
+				Date date2=sdf2.parse(obj.getString("date"));
+				Calendar calendarDate=Calendar.getInstance();
+				calendarDate.setTime(date2);
+				mYear=calendarDate.get(Calendar.YEAR);
+				mMon=calendarDate.get(Calendar.MONTH);
+				mDay=calendarDate.get(Calendar.DAY_OF_MONTH);
+			}
 			// TODO
 		} catch (JSONException ex) {
 			Log.e("hsbservice", "SetObject fail");
 			return false;
+		}catch (ParseException e){
+			Log.e("",e.getMessage());
 		}
 
 		return true;

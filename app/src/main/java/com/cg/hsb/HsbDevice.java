@@ -81,7 +81,7 @@ public class  HsbDevice {
         return false;
     }
 
-    protected HsbDeviceEndpoint FindEndpoint(int epid)
+    public HsbDeviceEndpoint FindEndpoint(int epid)
     {
         for (int id = 0; id < mEndpoints.size(); id++)
         {

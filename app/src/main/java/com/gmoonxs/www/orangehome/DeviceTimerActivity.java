@@ -33,7 +33,12 @@ import com.gmoonxs.www.orangehome.datepicker.OnWheelScrollListener;
 import com.gmoonxs.www.orangehome.datepicker.WheelView;
 import com.gmoonxs.www.orangehome.datepicker.adapter.NumericWheelAdapter;
 
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class DeviceTimerActivity extends BaseActivity {
@@ -496,13 +501,18 @@ public class DeviceTimerActivity extends BaseActivity {
             DeviceTimerActivity.this.finish();
         }else {
             if (isTimerOperation) {
-                HsbDeviceTimer hsbDeviceTimer=new HsbDeviceTimer(hsbDevice.GetDevId());
+                HsbDeviceTimer hsbDeviceTimer=new HsbDeviceTimer();
                 hsbDeviceTimer.SetDate(dateTimeCalendar.get(Calendar.YEAR), dateTimeCalendar.get(Calendar.MONTH) + 1, dateTimeCalendar.get(Calendar.DATE));
                 hsbDeviceTimer.SetTime(dateTimeCalendar.get(Calendar.HOUR_OF_DAY), dateTimeCalendar.get(Calendar.MINUTE), 0);
-                hsbDeviceTimer.SetWeekDay(HsbDeviceTimer.WEEKDAY_ONE_SHOT);
+                hsbDeviceTimer.SetObject(new JSONObject());
+
+                hsbDeviceTimer.SetType(HsbDeviceTimer.TYPE_DAILY);
                 hsbDeviceTimer.SetActive(true);
                 if (deviceOperation==0){
                     HsbDeviceAction hsbDeviceAction=hsbDevice.MakePowerAction(true);
+                    Date date =new Date();
+                    int year=date.getYear();
+                    int month=date.getMonth();
                     hsbDeviceTimer.SetAction(hsbDeviceAction);
                 }
                 else {
@@ -657,6 +667,11 @@ public class DeviceTimerActivity extends BaseActivity {
         }
 
         super.onRestart();
+    }
+
+    private String getJSONString(int timerId,int type){
+        String s= "{ \"tmid\": \""+timerId+"\", \"type\":"+type+"\", \"time\":"+type+"\", \"action\":"+type+"}";
+        return s;
     }
 
 }

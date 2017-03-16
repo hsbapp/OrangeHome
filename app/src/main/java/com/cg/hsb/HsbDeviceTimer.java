@@ -37,6 +37,18 @@ public class HsbDeviceTimer {
 		mType = TYPE_ONESHOT;
 	}
 
+	public void Set(HsbDeviceTimer timer) {
+		this.mID = timer.mID;
+		this.mYear = timer.mYear;
+		this.mMon = timer.mMon;
+		this.mDay = timer.mDay;
+		this.mHou = timer.mHou;
+		this.mMin = timer.mMin;
+		this.mSec = timer.mSec;
+		this.mAction = timer.mAction;
+		this.mType = timer.mType;
+	}
+
 	public void SetDate(int year, int mon, int day) {
 		mYear = year;
 		mMon = mon;
@@ -106,6 +118,7 @@ public class HsbDeviceTimer {
 		try {
 			if (!obj.has("tmid") || !obj.has("type") || !obj.has("time") || !obj.has("action"))
 				return false;
+
 			mID = obj.getInt("tmid");
 			mType = obj.getString("type");
 
@@ -117,21 +130,22 @@ public class HsbDeviceTimer {
 			mMin=calendarTime.get(Calendar.MINUTE);
 			mSec=calendarTime.get(Calendar.SECOND);
 
-			if(obj.has("date")){
-				SimpleDateFormat sdf2= new SimpleDateFormat("yyyy-MM-dd");
-				Date date2=sdf2.parse(obj.getString("date"));
-				Calendar calendarDate=Calendar.getInstance();
+			if (obj.has("date")) {
+				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+				Date date2 = sdf2.parse(obj.getString("date"));
+				Calendar calendarDate = Calendar.getInstance();
 				calendarDate.setTime(date2);
-				mYear=calendarDate.get(Calendar.YEAR);
-				mMon=calendarDate.get(Calendar.MONTH);
-				mDay=calendarDate.get(Calendar.DAY_OF_MONTH);
+				mYear = calendarDate.get(Calendar.YEAR);
+				mMon = calendarDate.get(Calendar.MONTH);
+				mDay = calendarDate.get(Calendar.DAY_OF_MONTH);
 			}
-			// TODO
+
+			mAction = HsbDeviceAction.CreateFromJson(obj.getJSONObject("action"));
 		} catch (JSONException ex) {
 			Log.e("hsbservice", "SetObject fail");
 			return false;
 		}catch (ParseException e){
-			Log.e("",e.getMessage());
+			Log.e("hsbservice", e.getMessage());
 		}
 
 		return true;

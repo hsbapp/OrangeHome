@@ -45,11 +45,9 @@ public class Protocol  implements Runnable {
 
 	private ArrayList<HsbDevice> mDevList;
 	private ArrayList<HsbScene> mSceneList;
-	private ArrayList<HsbDeviceTimer> mTimerList;
 
 	private HsbListener mListener = null;
 	private HsbSceneListener mSceneListener = null;
-	private HsbTimerListener mTimerListener = null;
 
 	private final String HSB_CMD_BOX_DISCOVER = "are you hsb?";
 	private final String HSB_CMD_BOX_DISCOVER_RESP = "i'm a hsb";
@@ -65,15 +63,10 @@ public class Protocol  implements Runnable {
 	private final String HSB_CMD_DEL_SCENES = "del_scenes";
 	private final String HSB_CMD_ENTER_SCENE = "enter_scene";
 	private final String HSB_CMD_SCENES_UPDATED = "scenes_updated";
-	private final String HSB_CMD_GET_TIMERS = "get_timers";
-	private final String HSB_CMD_SET_TIMERS = "set_timers";
-	private final String HSB_CMD_DEL_TIMERS = "del_timers";
-	private final String HSB_CMD_TIMERS_UPDATED = "timers_updated";
 
 	public Protocol(Context ctx) {
 		mDevList = new ArrayList<HsbDevice>();
 		mSceneList = new ArrayList<HsbScene>();
-		mTimerList = new ArrayList<HsbDeviceTimer>();
 
 		try {
 			mBcAddress = getBroadcastAddress(ctx);
@@ -100,10 +93,6 @@ public class Protocol  implements Runnable {
 
 	public void SetSceneListener(HsbSceneListener listener) {
 		mSceneListener = listener;
-	}
-
-	public void SetTimerListener(HsbTimerListener listener) {
-		mTimerListener = listener;
 	}
 
 	private boolean ProbeHsb() {
@@ -390,108 +379,6 @@ public class Protocol  implements Runnable {
 		return SendHsbCmd(HSB_CMD_ENTER_SCENE, obj);
 	}
 
-
-	public ArrayList<HsbDeviceTimer> GetTimerList() {
-		return mTimerList;
-	}
-
-	public void SetTimer(HsbDeviceTimer timer)
-	{
-		if (!CheckConnectivity())
-			return;
-
-		final HsbDeviceTimer _timer = timer;
-
-		new Thread()
-		{
-			@Override
-			public void run()
-			{
-				SetTimerAsync(_timer);
-			}
-		}.start();
-	}
-
-	private boolean SetTimerAsync(HsbDeviceTimer timer)
-	{
-		JSONObject total = new JSONObject();
-		JSONArray timers = new JSONArray();
-		JSONObject obj = timer.GetObject();
-
-		if (null == total || null == timers || null == obj)
-			return false;
-
-		try {
-			timers.put(obj);
-			total.put("timers", timers);
-		} catch (JSONException ex) {
-			log("SetTimerAsync fail");
-			return false;
-		}
-
-		return SendHsbCmd(HSB_CMD_SET_TIMERS, total);
-	}
-
-	public void GetTimer() {
-		if (!CheckConnectivity())
-			return;
-
-		new Thread()
-		{
-			@Override
-			public void run()
-			{
-				GetTimerAsync();
-			}
-		}.start();
-	}
-
-	private boolean GetTimerAsync()
-	{
-		return SendHsbCmd(HSB_CMD_GET_TIMERS, null);
-	}
-
-	public void DelTimer(int TimerID)
-	{
-		if (!CheckConnectivity())
-			return;
-
-		final int _TimerID = TimerID;
-
-		new Thread()
-		{
-			@Override
-			public void run()
-			{
-				DelTimerAsync(_TimerID);
-			}
-		}.start();
-
-		for (HsbDeviceTimer timer : mTimerList)
-		{
-			if (timer.GetID() == TimerID)
-				mTimerList.remove(timer);
-		}
-	}
-
-	private boolean DelTimerAsync(int TimerID)
-	{
-		JSONObject total = new JSONObject();
-		JSONObject obj = new JSONObject();
-		JSONArray timers = new JSONArray();
-
-		try {
-			obj.put("tmid", TimerID);
-			timers.put(obj);
-			total.put("timers", timers);
-		} catch (JSONException ex) {
-			log("DelTimerAsync fail");
-			return false;
-		}
-
-		return SendHsbCmd(HSB_CMD_DEL_TIMERS, total);
-	}
-
 	public void AddDevice(String irtype, String name, String location)
 	{
 		if (!CheckConnectivity())
@@ -694,16 +581,12 @@ public class Protocol  implements Runnable {
 				OfflineDevices(object);
 			} else if (cmd == HSB_CMD_SCENES_UPDATED) {
 				UpdateScenes(object);
-			} else if (cmd == HSB_CMD_TIMERS_UPDATED) {
-				UpdateTimers(object);
 			}
 		} else { // breply
 			if (cmd == HSB_CMD_SET_DEVS) {
 
 			} else if (cmd == HSB_CMD_GET_SCENES) {
 				UpdateScenes(object);
-			} else if (cmd == HSB_CMD_GET_TIMERS) {
-				UpdateTimers(object);
 			}
 		}
 	}
@@ -823,32 +706,6 @@ public class Protocol  implements Runnable {
 			mSceneListener.onSceneUpdated();
 	}
 
-	private void UpdateTimers(JSONObject object)
-	{
-		ArrayList<HsbDeviceTimer> timers = new ArrayList<HsbDeviceTimer>();
-		try {
-			JSONArray objs = object.getJSONArray("timers");
-
-			for (int i = 0; i < objs.length(); i++)
-			{
-				JSONObject obj = (JSONObject)objs.opt(i);
-				HsbDeviceTimer timer = new HsbDeviceTimer();
-				if (null == timer)
-					continue;
-
-				timer.SetObject(obj);
-				timers.add(timer);
-			}
-		} catch (JSONException e) {
-			log(e.toString());
-			return;
-		}
-
-		mTimerList = timers;
-		if (null != mTimerListener)
-			mTimerListener.onTimerUpdated();
-	}
-
 	private void FreeDevice(int devid) {
 		HsbDevice device = FindDevice(devid);
 		if (device == null) {
@@ -911,9 +768,9 @@ public class Protocol  implements Runnable {
 
 	private void StartListenTest()  {
 		try {
-			mHsbAddress = InetAddress.getByName("121.42.149.168");
+			mHsbAddress = InetAddress.getByName("115.28.80.123");
 		} catch(UnknownHostException e) {
-			Log.e("hsbservice", "unknown host: 121.42.149.168");
+			Log.e("hsbservice", "unknown host: 115.28.80.123");
 		}
 
 		while (true) {

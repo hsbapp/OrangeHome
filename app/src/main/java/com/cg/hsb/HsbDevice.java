@@ -22,6 +22,8 @@ public class  HsbDevice {
 
     protected ArrayList<HsbDeviceEndpoint> mEndpoints;
 
+    protected ArrayList<HsbDeviceTimer> mTimers;
+
     protected boolean mOnline;
     protected ArrayList<HsbChannel> mChannelList;
 
@@ -36,6 +38,7 @@ public class  HsbDevice {
         mDevId = devid;
         mChannelList = null;
         mEndpoints = new ArrayList<HsbDeviceEndpoint>();
+        mTimers = new ArrayList<HsbDeviceTimer>();
         mSupportCondition = false;
         mSupportAction = false;
         mName = "";
@@ -107,6 +110,8 @@ public class  HsbDevice {
 
     public boolean SetObject(JSONObject object)
     {
+        ArrayList<HsbDeviceTimer> new_timers = new ArrayList<HsbDeviceTimer>();
+
         try {
             if (!object.has("mac") || !object.has("devtype"))
                 return false;
@@ -146,10 +151,28 @@ public class  HsbDevice {
                     endpoint.SetObject(ep);
                 }
             }
+
+            if (object.has("timers"))
+            {
+                JSONArray timers = object.getJSONArray("timers");
+                for (int i = 0; i < timers.length(); i++)
+                {
+                    JSONObject tm = (JSONObject)timers.opt(i);
+                    if (!tm.has("tmid"))
+                        continue;
+
+                    int tmid = tm.getInt("tmid");
+                    HsbDeviceTimer timer = new HsbDeviceTimer();
+                    timer.SetObject(tm);
+                    new_timers.add(timer);
+                }
+            }
         } catch (JSONException e) {
             Log.e("hsbservice", "SetObject fail");
             return false;
         }
+
+        mTimers = new_timers;
 
         UpdateCapabilities();
 
@@ -319,6 +342,52 @@ public class  HsbDevice {
             object.put("attrs", attrs);
         } catch (JSONException e) {
             Log.e("hsbservice", "SetName fail");
+            return false;
+        }
+
+        return mProto.SetDevice(object);
+    }
+
+    public HsbDeviceTimer GetTimer(int tmid)
+    {
+        for (int id = 0; id < mTimers.size(); id++)
+        {
+            HsbDeviceTimer timer = mTimers.get(id);
+            if (timer.GetID() == tmid)
+                return timer;
+        }
+
+        return null;
+    }
+
+    public boolean SetTimer(HsbDeviceTimer timer)
+    {
+        int tmid = timer.GetID();
+
+        HsbDeviceTimer old = GetTimer(tmid);
+        if (null != old)
+        {
+            mTimers.remove(old);
+            mTimers.add(timer);
+        }
+
+        JSONObject object = null;
+
+        try {
+            object = new JSONObject();
+            object.put("devid", mDevId);
+
+            JSONArray _timers = new JSONArray();
+
+            for (int i = 0; i < mTimers.size(); i++) {
+                HsbDeviceTimer tm = mTimers.get(i);
+
+                _timers.put(tm.GetObject());
+            }
+
+            object.put("timers", _timers);
+        } catch (JSONException e) {
+            Log.e("hsbservice", "SetTimer fail");
             return false;
         }
 

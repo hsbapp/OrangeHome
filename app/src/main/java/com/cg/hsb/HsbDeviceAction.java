@@ -29,6 +29,24 @@ public class HsbDeviceAction {
 		mValue = value;
 	}
 
+	public static HsbDeviceAction CreateFromJson(JSONObject obj) {
+		int devid, id, val;
+
+		try {
+			if (!obj.has("devid") || !obj.has("epid") || !obj.has("val"))
+				return null;
+
+			devid = obj.getInt("devid");
+			id = obj.getInt("epid");
+			val = obj.getInt("val");
+		} catch (JSONException ex) {
+			Log.e("hsbservice", "CreateFromJson fail");
+			return null;
+		}
+
+		return new HsbDeviceAction(devid, id, val);
+	}
+
 	public void Set(HsbDeviceAction action) {
 		mDevID = action.GetDevID();
 		mID = action.GetID();
